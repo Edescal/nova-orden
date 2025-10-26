@@ -1,0 +1,132 @@
+from rest_framework import serializers
+from users import models
+import datetime, time
+
+def UNIX_timestamp(date : datetime.datetime):
+    return int(time.mktime(date.timetuple())) * 1000
+
+class CategoriaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Categoria
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    servicios = serializers.SerializerMethodField()
+
+    def get_servicios(self, categoria: models.Categoria):
+        serializer = ProductoSerializer(categoria.productos.all(), many=True)
+        return serializer.data
+
+class CategoriaDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Categoria
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+
+class ProductoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Producto
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    categoria = serializers.SerializerMethodField()
+    option_groups = serializers.SerializerMethodField()
+
+    def get_categoria(self, servicio:models.Producto):
+        return CategoriaDisplaySerializer(servicio.categoria).data
+        
+    def get_option_groups(self, servicio:models.Producto):
+        serializer = OptionGroupSerializer(servicio.grupos.all(), many=True)
+        return serializer.data
+
+class ProductoDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Producto
+        fields = ['id', 'nombre', 'descripcion', 'precio', 'categoria']
+        read_only_fields = ["id"]
+
+
+class OptionGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OptionGroup
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    options = serializers.SerializerMethodField()
+
+    def get_options(self, optGrp: models.OptionGroup):
+        serializer = OptionSerializer(optGrp.opciones.all(), many=True)
+        return serializer.data
+
+class GroupDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OptionGroup
+        fields = ['id','descripcion']
+        read_only_fields = ["id"]
+
+
+class OptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Option
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    class Full(serializers.ModelSerializer):
+        class Meta:
+            model = models.Option
+            fields = '__all__'
+            read_only_fields = ["id"]
+
+        group = serializers.SerializerMethodField()
+
+        def get_group(self, obj):
+            return GroupDisplaySerializer(obj.group).data 
+
+
+class ProductoWrapperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ProductoWrapper
+        fields = ['id', 'producto', 'opciones', 'subtotal']
+        read_only_fields = ["id"]
+
+    subtotal = serializers.SerializerMethodField()
+    opciones = serializers.SerializerMethodField()
+    producto = serializers.SerializerMethodField()
+
+    def get_producto(self, wrapper: models.ProductoWrapper):
+        return ProductoDisplaySerializer(wrapper.producto).data
+
+    def get_subtotal(self, wrapper: models.ProductoWrapper):
+        return wrapper.calcular_precio()
+
+    def get_opciones(self, wrapper: models.ProductoWrapper):
+        return OptionSerializer.Full(wrapper.opciones, many = True).data
+
+class OrdenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Orden
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    total = serializers.SerializerMethodField()
+    productos = serializers.SerializerMethodField()
+    fecha = serializers.SerializerMethodField()
+    numero = serializers.SerializerMethodField()
+
+    def get_total(self, orden: models.Orden):
+        return orden.calcular_total()
+
+    def get_productos(self, orden: models.Orden):
+        serializer = ProductoWrapperSerializer(orden.productos.all(), many = True)
+        return serializer.data
+    
+    def get_fecha(self, orden: models.Orden):
+        return UNIX_timestamp(orden.fecha)
+    
+    def get_numero(self, orden: models.Orden):
+        last_numero = models.Orden.objects.filter(fecha__date = orden.fecha.date()).order_by('-numero').first()
+        if last_numero:
+            return last_numero.numero + 1
+
+        return 'PENERICO'
