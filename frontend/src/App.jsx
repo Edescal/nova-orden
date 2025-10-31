@@ -1,70 +1,54 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import ButtonDark from './ButtonDark'
-// import './App.css'
+import { useEffect, useRef, useState } from 'react'
+import ProductoCard from './components/ProductoCard'
+import Navbar from './components/Navbar'
 import './css/style.css'
-import ProductoCard from './ProductoCard'
-import FormProducto from './FormProducto'
-import Navbar from './Navbar'
-import Dialog from './Dialog'
-
-
+import Footer from './components/Footer'
+import { Route, Routes } from 'react-router-dom'
+import DrawerCarrito from './components/DrawerCarrito'
+import Home from './pages/Home'
+import { useCart } from './context/CartContext'
+import { get } from './utils/apiUtils'
+import Menu from './pages/Menu'
 
 function App() {
-  const URLOrdenes = 'http://192.168.0.5:8000/api/ordenes/'
-  const URLProductos = 'http://192.168.0.5:8000/api/productos/'
+	const carrito = useCart()
+	useEffect(() => {
+		async function init() {
+			const data = await get('/api/wrappers/10/')
+			if (data) {
+				carrito.addItem(data)
+			}
+		}
+		init();
+	}, [])
 
-  const [productos, setProductos] = useState([])
+	const [productos, setProductos] = useState([])
 
-  useEffect(() => {
-    cargarProducto()
-  }, [])
+	useEffect(() => {
+		const cargarProductos = async () => {
+			const productos = await get('/api/productos/')
+			if (productos) {
+				setProductos(productos.results)
+			}
+		}
+		cargarProductos()
+	}, [])
 
-  const cargarProducto = async () => {
-    fetch(URLProductos)
-      .then(res => res.json())
-      .then(json => json.results)
-      .then(productos => {
-        setProductos(productos)
-      })
-      .catch(error => {
-        console.error(error)
-        setError(error)
-      })
-  }
-
-  const cargarOrdenes = async () => {
-    fetch(URLOrdenes)
-      .then(res => res.json())
-      .then(json => json.results)
-      .then(ordenes => {
-        ordenes.forEach(orden => {
-          console.log(orden)
-        });
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
-
-  return (
-    <>
-      <Navbar></Navbar>
-      <Dialog children= { <FormProducto/> }/>
-      <div className='container-fluid bg-body-secondary min-vh-100'>
-        {
-          productos.map(p => (
-            <div className='row' key={p.id} >
-              <div className='col-sm-12 col-md-6 h-100'>
-                <ProductoCard producto={p} />
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </>
-  )
+	const [open, setOpen] = useState(false)
+	return (
+		<>
+			<Navbar />
+			<main className='container-fluid' style={{ height: "calc(100vh - 100px)" }}>
+				<Routes>
+					<Route path='/' element={<Menu></Menu>} />
+					<Route path='/home' element={<Home />} />
+					<Route path='/checkout' element={<ProductoCard />} />
+				</Routes>
+			</main>
+			<Footer onCartClick={() => setOpen(!open)} />
+			<DrawerCarrito open={open} setOpen={setOpen}></DrawerCarrito>
+		</>
+	)
 }
 
 export default App

@@ -34,16 +34,16 @@ class ProductoSerializer(serializers.ModelSerializer):
     option_groups = serializers.SerializerMethodField()
 
     def get_categoria(self, servicio:models.Producto):
-        return CategoriaDisplaySerializer(servicio.categoria).data
-        
+        return CategoriaDisplaySerializer(servicio.categoria, context=self.context).data
+
     def get_option_groups(self, servicio:models.Producto):
-        serializer = OptionGroupSerializer(servicio.grupos.all(), many=True)
+        serializer = OptionGroupSerializer(servicio.grupos.all(), many=True, context=self.context)
         return serializer.data
 
 class ProductoDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Producto
-        fields = ['id', 'nombre', 'descripcion', 'precio', 'categoria']
+        fields = ['id', 'nombre', 'descripcion', 'precio', 'categoria', 'imagen']
         read_only_fields = ["id"]
 
 
@@ -56,7 +56,7 @@ class OptionGroupSerializer(serializers.ModelSerializer):
     options = serializers.SerializerMethodField()
 
     def get_options(self, optGrp: models.OptionGroup):
-        serializer = OptionSerializer(optGrp.opciones.all(), many=True)
+        serializer = OptionSerializer(optGrp.opciones.all(), many=True, context=self.context)
         return serializer.data
 
 class GroupDisplaySerializer(serializers.ModelSerializer):
@@ -72,22 +72,28 @@ class OptionSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ["id"]
 
-    class Full(serializers.ModelSerializer):
-        class Meta:
-            model = models.Option
-            fields = '__all__'
-            read_only_fields = ["id"]
+    display_string = serializers.SerializerMethodField()
 
-        group = serializers.SerializerMethodField()
+    def get_display_string(self, option: models.Option):
+        return f"{option.descripcion} { f'(${option.precio:,.2f})' if option.precio > 0 else f'(-${option.precio:,.2f})' if option.precio < 0 else '' }"
 
-        def get_group(self, obj):
-            return GroupDisplaySerializer(obj.group).data 
+
+class OptionFullSerializer(OptionSerializer):
+    class Meta:
+        model = models.Option
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+    group = serializers.SerializerMethodField()
+
+    def get_group(self, obj):
+        return GroupDisplaySerializer(obj.group, context=self.context).data 
 
 
 class ProductoWrapperSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ProductoWrapper
-        fields = ['id', 'producto', 'opciones', 'subtotal']
+        fields = '__all__'
         read_only_fields = ["id"]
 
     subtotal = serializers.SerializerMethodField()
@@ -95,13 +101,13 @@ class ProductoWrapperSerializer(serializers.ModelSerializer):
     producto = serializers.SerializerMethodField()
 
     def get_producto(self, wrapper: models.ProductoWrapper):
-        return ProductoDisplaySerializer(wrapper.producto).data
+        return ProductoDisplaySerializer(wrapper.producto, context=self.context).data
 
     def get_subtotal(self, wrapper: models.ProductoWrapper):
-        return wrapper.calcular_precio()
+        return wrapper.calcular_subtotal()
 
     def get_opciones(self, wrapper: models.ProductoWrapper):
-        return OptionSerializer.Full(wrapper.opciones, many = True).data
+        return OptionFullSerializer(wrapper.opciones, many = True, context=self.context).data
 
 class OrdenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -118,7 +124,7 @@ class OrdenSerializer(serializers.ModelSerializer):
         return orden.calcular_total()
 
     def get_productos(self, orden: models.Orden):
-        serializer = ProductoWrapperSerializer(orden.productos.all(), many = True)
+        serializer = ProductoWrapperSerializer(orden.productos.all(), many = True, context=self.context)
         return serializer.data
     
     def get_fecha(self, orden: models.Orden):
@@ -128,5 +134,4 @@ class OrdenSerializer(serializers.ModelSerializer):
         last_numero = models.Orden.objects.filter(fecha__date = orden.fecha.date()).order_by('-numero').first()
         if last_numero:
             return last_numero.numero + 1
-
-        return 'PENERICO'
+        return 0

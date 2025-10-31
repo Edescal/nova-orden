@@ -1,5 +1,8 @@
 .venv
 .env
+.env.development
+.env.production
+db.sqlite3
 
 # Logs
 logs

@@ -39,6 +39,20 @@ def generar_servicio() -> models.Producto:
 def parser():
     with transaction.atomic():
         try:
+            usuario = models.Usuario.objects.create_superuser(
+                email='eduardo1582000@gmail.com',
+                password='password',
+                nombre = 'Eduardo',
+                apellidos = 'Escalante Pacheco'
+            )
+            negocio = models.Negocio.objects.create(
+                nombre = 'The Coffee',
+                descripcion = 'Cafetería japonesa.',
+                direccion = 'Calle 47 Colonia Centro, Mérida, Yucatán',
+                telefono = '9992834323',
+                usuario = usuario
+            )
+
             with Path('__extra__/categorias.csv').open(encoding='utf-8') as archivo:
                 rows = csv.DictReader(archivo)
                 for line in rows:
@@ -63,6 +77,7 @@ def parser():
                         descripcion = descripcion,
                         precio = precio,
                         categoria = models.Categoria.objects.get(id=categoria),
+                        negocio = negocio,
                     )
             
             with Path('__extra__/grupos.csv').open(encoding='utf-8') as archivo:
@@ -124,5 +139,7 @@ def generar_orden():
         except Exception as e:
             transaction.set_rollback(True)
             print(f'Error: {e}')
+
+
 
 

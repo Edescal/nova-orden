@@ -1,7 +1,7 @@
 from pathlib import Path
 import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
@@ -24,22 +24,24 @@ env.read_env(BASE_DIR / '.env')
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = env("DEBUG", default=True)
 
 ALLOWED_HOSTS = [
-    '*'
+    'localhost',
+    '127.0.0.1',
+    '192.168.0.5' #mi PC
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://192.168.0.5:5173",
+    "http://192.168.0.5:5173", #mi PC
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://192.168.0.12:5173",
+    "http://192.168.0.5:5173", #mi PC
 ]
 
 # Application definition
@@ -108,14 +110,14 @@ DATABASES = {
     'alt': {
         'ENGINE': 'django.db.backends.mysql',  
         'NAME': 'citasweb',  
-        'USER': 'root',
-        'PASSWORD': 'admin123',
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '3306',                        
     }
 }
 
-# AUTH_USER_MODEL = 'users.Usuario'
+AUTH_USER_MODEL = 'users.Usuario'
 
 EMAIL_BACKEND = env("EMAIL_BACKEND")
 EMAIL_HOST = env("EMAIL_HOST")
@@ -150,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = env("TIME_ZONE")
+TIME_ZONE = env("TIME_ZONE", default='America/Merida')
 
 USE_I18N = True
 

@@ -1,0 +1,23 @@
+.home-area {
+    display: grid !important;
+    grid-template-areas:
+        "home-header"
+        "home-content"
+        "home-carousel"
+    ;
+    grid-template-rows: 2fr 3fr 1fr;
+    
+}
+
+.home-header {
+    grid-area: "home-header";
+    overflow: hidden;
+}
+
+.home-content {
+    grid-area: "home-content";
+}
+
+.home-carousel {
+    grid-area: "home-carousel";
+}

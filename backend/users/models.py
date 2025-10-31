@@ -1,10 +1,128 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
-import datetime
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+import uuid
 
-def servicio_image_path(instance, filename):
+def producto_img_path(instance, filename):
     return f'products/{instance.id or 'tmp'}/{filename}'
 
+def banner_img_path(instance, filename):
+    return f'business/banner/{instance.uuid or 'tmp'}/{filename}'
+
+# region Usuarios
+class CustomUsuarioManager(BaseUserManager):
+    def create_user(self, email, password = None, **kwargs):
+        if not email:
+            raise ValueError('El email es obligatorio')
+        email = self.normalize_email(email)
+        user : Usuario = self.model(email = email, **kwargs)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, email, password = None, **kwargs):
+        kwargs.setdefault('is_staff', True)
+        kwargs.setdefault('is_superuser', True)
+        if kwargs.get('is_staff') is not True:
+            ValueError('El superusuario debe tener is_staff=True')
+        if kwargs.get('is_superuser') is not True:
+            ValueError('El superusuario debe tener is_superuser=True')
+        return self.create_user(email, password, **kwargs)
+    
+class Usuario(AbstractBaseUser, PermissionsMixin):
+    uuid = models.UUIDField(
+        null=False,
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    email = models.EmailField(unique=True)
+    nombre = models.CharField(
+        null=False,
+        blank=False,
+        max_length=128,
+    ) 
+    apellidos = models.CharField(
+        null=False,
+        blank=False,
+        max_length=128,
+    )
+    fecha_registro = models.DateTimeField(
+        auto_now_add=True
+    )
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects : CustomUsuarioManager = CustomUsuarioManager()
+
+    def __str__(self):
+        return f'Usuario: {self.email} | {self.nombre} {self.apellidos} | activo: {self.is_active}'
+# endregion
+
+class Negocio(models.Model):
+    class Meta:
+        db_table_comment = "Instancia del negocio autenticados"
+        db_table = "negocio"
+
+    uuid = models.UUIDField(
+        null=False,
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    nombre = models.CharField(
+        null=False,
+        blank=False,
+        default='Nuevo negocio',
+        max_length=128,
+    )
+    descripcion = models.CharField(
+        null=False,
+        blank=False,
+        default='Descripción del negocio.',
+        max_length=128,
+    )
+    direccion = models.CharField(
+        null=False,
+        blank=False,
+        default='Direccion',
+        max_length=128,
+    )
+    telefono = models.CharField(
+        null=False,
+        blank=True,
+        max_length=10,
+    )
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+    )
+    banner_img = models.ImageField(
+        blank=True,
+        null=True,  
+        default=None,
+        upload_to=banner_img_path,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg','jpeg','png','webp'])
+        ]  
+    )
+    usuario = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        null=False,
+        related_name='negocios'
+    )
+
+    def __str__(self) -> str:
+        return f'{self.nombre}. {self.descripcion}(\n'\
+                    f'direccion: {self.direccion}\n' \
+                    f'teléfono: {self.telefono}\n' \
+                    f')'
+   
+
+# region Clases principales
 class Categoria(models.Model):
     class Meta:
         db_table_comment = "Categorías de productos"
@@ -43,11 +161,16 @@ class Producto(models.Model):
         max_digits=10,
         decimal_places=2,
     )
+    visible = models.BooleanField(
+        null=False,
+        blank=False,
+        default=True,
+    )
     imagen = models.ImageField(
         blank=True,
         null=True,  
         default=None,
-        upload_to=servicio_image_path,
+        upload_to=producto_img_path,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg','jpeg','png','webp'])
         ]
@@ -57,6 +180,12 @@ class Producto(models.Model):
         null=False,
         on_delete=models.CASCADE,
         related_name='productos',
+    )
+    negocio = models.ForeignKey(
+        Negocio,
+        on_delete=models.CASCADE,
+        default=None,
+        related_name='productos'
     )
     
     def __str__(self):
@@ -106,8 +235,8 @@ class Option(models.Model):
 
     def __str__(self):
         return f'{self.descripcion} { f'(${self.precio})' if self.precio > 0 else f'(-${abs(self.precio)})' if self.precio < 0 else '' }'
+# endregion
 
-#---------------------------------------------------
 
 class ProductoWrapper(models.Model):
     class Meta:
@@ -127,7 +256,9 @@ class ProductoWrapper(models.Model):
     )
     opciones = models.ManyToManyField(Option)
 
-    def calcular_precio(self) -> float:
+    def calcular_subtotal(self) -> float:
+        if not self.producto:
+            return 0
         sum = self.producto.precio
         for o in self.opciones.all():
             sum += o.precio
@@ -162,16 +293,22 @@ class Orden(models.Model):
         default='Sin nombre'
     )
     fecha = models.DateTimeField(
-        auto_now=True,
+        auto_now_add=True,
         null=False,
         blank=False
+    )
+    negocio = models.ForeignKey(
+        Negocio,
+        on_delete=models.CASCADE,
+        default=None,
+        related_name='ordenes'
     )
     productos = models.ManyToManyField(ProductoWrapper)
 
     def calcular_total(self) -> float:
         sum = 0
         for p in self.productos.all():
-            sum += p.calcular_precio()
+            sum += p.calcular_subtotal()
         return sum
 
     def __str__(self):
