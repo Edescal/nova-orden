@@ -1,0 +1,71 @@
+:root {
+    --dropzone-color-primary: rgb(140, 140, 140);
+    --dropzone-color-secondary: rgb(200, 200, 200);
+    --dropzone-color-tertiary: rgb(250, 250, 250);
+    --dropzone-color-hover: rgb(240, 240, 240);
+}
+
+
+
+.dropzone {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+
+    .dropzone>* {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    height: 100%;
+    padding: 1.5em;
+    color: var(--dropzone-color-primary);
+    background-color: var(--dropzone-color-tertiary);
+    border: 2px dashed var(--dropzone-color-secondary);
+    border-radius: 8px;
+
+    text-overflow: ellipsis;
+    display: flex;
+    flex: 1 1 0%;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    row-gap: 0.5em;
+
+    &>span {
+        font-size: 1.1em;
+        text-align: center;
+    }
+
+    &>.file-info {
+        font-size: 1em;
+        font-style: italic;
+
+        &>span {
+            font-size: 1em;
+            font-weight: bold;
+            font-style: normal;
+        }
+    }
+
+    &:hover {
+        background-color: var(--dropzone-color-hover);
+        transition: all 0.2s ease;
+    }
+
+    outline: 2px dashed rgba(0, 0, 255, 0);
+    outline-offset: -6px;
+
+    &.drag {
+        border: 2px dashed transparent;
+        outline: 2px dashed blue;
+        transition: all 0.3s ease;
+
+        & svg {
+            transform: scale(1.3);
+            transition: all 0.3s ease;
+        }
+    }
+
+    transition: all 0.1s ease;
+}

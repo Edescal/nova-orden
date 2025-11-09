@@ -5,24 +5,24 @@ import datetime, time
 def UNIX_timestamp(date : datetime.datetime):
     return int(time.mktime(date.timetuple())) * 1000
 
+class NegocioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Negocio
+        fields = '__all__'
+        read_only_fields = ["id"]
+
+
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Categoria
         fields = '__all__'
         read_only_fields = ["id"]
 
-    servicios = serializers.SerializerMethodField()
+    productos = serializers.SerializerMethodField()
 
-    def get_servicios(self, categoria: models.Categoria):
-        serializer = ProductoSerializer(categoria.productos.all(), many=True)
+    def get_productos(self, categoria: models.Categoria):
+        serializer = ProductoSerializer(categoria.productos.all(), many=True, context=self.context)
         return serializer.data
-
-class CategoriaDisplaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Categoria
-        fields = '__all__'
-        read_only_fields = ["id"]
-
 
 class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,11 +30,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ["id"]
 
-    categoria = serializers.SerializerMethodField()
     option_groups = serializers.SerializerMethodField()
-
-    def get_categoria(self, servicio:models.Producto):
-        return CategoriaDisplaySerializer(servicio.categoria, context=self.context).data
 
     def get_option_groups(self, servicio:models.Producto):
         serializer = OptionGroupSerializer(servicio.grupos.all(), many=True, context=self.context)
@@ -107,6 +103,8 @@ class ProductoWrapperSerializer(serializers.ModelSerializer):
         return wrapper.calcular_subtotal()
 
     def get_opciones(self, wrapper: models.ProductoWrapper):
+        if not wrapper.pk:
+            return None
         return OptionFullSerializer(wrapper.opciones, many = True, context=self.context).data
 
 class OrdenSerializer(serializers.ModelSerializer):
@@ -116,15 +114,15 @@ class OrdenSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     total = serializers.SerializerMethodField()
-    productos = serializers.SerializerMethodField()
+    pedidos = serializers.SerializerMethodField()
     fecha = serializers.SerializerMethodField()
     numero = serializers.SerializerMethodField()
 
     def get_total(self, orden: models.Orden):
         return orden.calcular_total()
 
-    def get_productos(self, orden: models.Orden):
-        serializer = ProductoWrapperSerializer(orden.productos.all(), many = True, context=self.context)
+    def get_pedidos(self, orden: models.Orden):
+        serializer = ProductoWrapperSerializer(orden.pedidos.all(), many = True, context=self.context)
         return serializer.data
     
     def get_fecha(self, orden: models.Orden):

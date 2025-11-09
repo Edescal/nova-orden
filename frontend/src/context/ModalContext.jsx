@@ -14,8 +14,8 @@ export default function ModalProvider({ children }) {
     const dialog = useRef()
     const confirm = useCallback((content = null, onConfirm = null, onCancel = null) => {
         setContent(content)
-        setOnCancelCallback(() => onCancel)
         setOnConfirCallback(() => onConfirm)
+        setOnCancelCallback(() => onCancel)
         dialog.current?.showModal()
     }, [])
 

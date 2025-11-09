@@ -43,11 +43,11 @@ export default function Dialog({ children = null, ref = null }) {
     return (
         <>
             <dialog ref={dialog} id="dialog">
-                <div className="card p-2" style={{ width: "clamp(300px, 50rem, 100%)" }} >
+                <div className="card p-3">
                     <div className="d-flex justify-content-end p-2">
                         <button type="submit" onClick={() => setOpen(false)} ref={btnClose} className="btn btn-close align-self-end"></button>
                     </div>
-                    <div className="card-body">
+                    <div className="card-body p-3">
                         {children ? children : <></>}
                     </div>
                 </div>

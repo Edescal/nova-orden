@@ -6,5 +6,6 @@ router.register(r"productos", views.ProductoViewSet, basename="producto")
 router.register(r"categorias", views.CategoriaViewSet, basename="categorias")
 router.register(r"ordenes", views.OrdenViewSet, basename="ordenes")
 router.register(r"wrappers", views.ProductoWrapperViewSet, basename="wrappers")
+router.register(r"negocios", views.NegocioViewSet, basename="negocios")
 
 urlpatterns = router.urls

@@ -29,13 +29,19 @@ DEBUG = env("DEBUG", default=True)
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '192.168.0.5' #mi PC
+    '192.168.0.5', #mi PC
+    '172.28.1.211', #mi PC,
+    '172.28.7.129',
+    '10.186.126.42',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://192.168.0.5:5173",
     "http://127.0.0.1:5173",
     "http://192.168.0.5:5173", #mi PC
+
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [

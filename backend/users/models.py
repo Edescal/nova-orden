@@ -1,5 +1,6 @@
 from django.db import models
-from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 import uuid
 
@@ -9,7 +10,7 @@ def producto_img_path(instance, filename):
 def banner_img_path(instance, filename):
     return f'business/banner/{instance.uuid or 'tmp'}/{filename}'
 
-# region Usuarios
+# region Usuarios 
 class CustomUsuarioManager(BaseUserManager):
     def create_user(self, email, password = None, **kwargs):
         if not email:
@@ -188,6 +189,11 @@ class Producto(models.Model):
         related_name='productos'
     )
     
+    def clean(self):
+        if self.precio < 0:
+            raise ValidationError('El precio de un producto no puede ser negativo')
+        return super().clean()
+
     def __str__(self):
         return f'{self.nombre}: {self.descripcion}'
 
@@ -248,6 +254,14 @@ class ProductoWrapper(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
+    cantidad = models.PositiveIntegerField(
+        null=False,
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(100)
+        ]
+    )
     anotacion = models.CharField(
         null=False,
         blank=True,
@@ -259,20 +273,35 @@ class ProductoWrapper(models.Model):
     def calcular_subtotal(self) -> float:
         if not self.producto:
             return 0
+        
+        if not self.pk:
+            return self.producto.precio
+        
         sum = self.producto.precio
         for o in self.opciones.all():
             sum += o.precio
         return sum
 
+    def clean(self):
+        if not self.producto:
+            raise ValidationError('Esta orden no tiene producto')
+        if self.cantidad < 1:
+            raise ValidationError('No se pueden ordenar 0 productos')
+        if self.producto.pk:
+            if self.opciones.count() == 0:
+                raise ValidationError('Hace falta información de las opciones de esta orden')
+            if self.producto.grupos.count() != self.opciones.count():
+                raise ValidationError('No concuerda el número de opciones elegidas para esta orden')
+            #TODO: validar que cada opción pertenezca a un grupo distinto
+
+        
+            
+        return super().clean()
+
     def __str__(self):
-        opciones = ''
-        for o in self.opciones.all():
-            opciones += f'    {o}\n'
         return f'ProductoWrapper(\n'\
                 f'  {self.producto}\n'\
-                f'  Opciones(\n'\
-                f'{opciones}'\
-                f'  )\n'\
+                f'  cantidad: {self.cantidad}\n'\
                 f'  notas: {self.anotacion}\n'\
                 ')'
 
@@ -303,17 +332,17 @@ class Orden(models.Model):
         default=None,
         related_name='ordenes'
     )
-    productos = models.ManyToManyField(ProductoWrapper)
+    pedidos = models.ManyToManyField(ProductoWrapper)
 
     def calcular_total(self) -> float:
         sum = 0
-        for p in self.productos.all():
+        for p in self.pedidos.all():
             sum += p.calcular_subtotal()
         return sum
 
     def __str__(self):
         productos = ''
-        for p in self.productos.all():
+        for p in self.pedidos.all():
             productos += f'    {p}\n'
         productos = productos.replace('\n', '\n    ')
         productos = productos[0:-4:1]

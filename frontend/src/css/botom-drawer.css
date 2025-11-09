@@ -4,7 +4,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);  /* color sutil */
+  background-color: rgba(255, 255, 255, 0.5);  /* color sutil */
   border-radius: 10px;
   transition: background-color 0.2s ease;
 }
@@ -14,7 +14,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;   /* o un leve tono si quieres */
+  background: black;   /* o un leve tono si quieres */
 }
 
 .drawer {

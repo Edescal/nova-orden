@@ -1,4 +1,7 @@
-import React, { act, createContext, useCallback, useContext, useMemo, useReducer } from 'react'
+import { act, createContext, useCallback, useContext, useMemo, useReducer, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { get, post } from '../utils/apiUtils'
+
 
 export const CartContext = createContext([])
 
@@ -7,19 +10,31 @@ export const useCart = () => useContext(CartContext)
 const cartReducer = (state = [], action) => {
     switch (action.type) {
         case 'add_item':
+            if (!action.data) {
+                console.warn('Se intentó agregar un objeto vacío al carrito')
+                return state
+            }
             console.log('Item added')
             const items = [...state, { ...action.data }]
             return items
         case 'remove_item':
+            if (!action.data) {
+                console.warn('Se intentó eliminar un objeto vacío del carrito')
+                return state
+            }
             console.log('Item removed')
             const filtered = state.filter(p => p.id !== action.data.id)
             return filtered
         case 'update_item':
-            console.log('Item updated')
+            if (!action.data) {
+                console.warn('Se intentó actualizar un objeto vacío del carrito')
+                return state
+            }
+            console.log('TODO: Item updated')
             return state
         case 'reset':
-            console.log('Reset')
-            return state
+            console.log('TODO: Reset')
+            return []
         default:
             console.log('Invalid state')
             return state
@@ -28,6 +43,7 @@ const cartReducer = (state = [], action) => {
 
 export const CartProvider = ({ children }) => {
     const [cart, dispatch] = useReducer(cartReducer, [])
+    const [isBusy, setIsBusy] = useState(false)
 
     const addToCart = useCallback((producto) =>
         dispatch({
@@ -50,13 +66,50 @@ export const CartProvider = ({ children }) => {
             type: 'reset',
             data: producto
         }), [])
+    const createOrder = useCallback(async (redirectTo) => {
+        console.log('QUE COÑO')
+        if (isBusy) {
+            console.warn('El carrito está ocupado...')
+            return false
+        }
+        setIsBusy(true)
+        try {
+            const body = {
+                fecha: new Date().getTime(),
+                negocio: "f32feeea-7313-4115-bdb9-fb65a60f0b64",
+                nombre_cliente: "Pobre pendejo",
+                productos: cart,
+            }
+            const resultado = await post('/api/ordenes/', body)
+            if (resultado) {
+                dispatch({
+                    type: 'reset',
+                    data: undefined
+                })
+                return resultado
+            }
+            throw new Error('No devolvió nada la petición')
+        } catch (error) {
+            console.log(`Salida:`)
+            console.error(error)
+        } finally {
+            setIsBusy(false)
+        }
+        return false
+
+    }, [cart, dispatch])
     const getPrice = useCallback(() => {
         let total = 0
         cart.forEach(detalle => {
-            total += Number(detalle.producto.precio)
-            detalle.opciones.forEach(opcion => {
-                total += Number(opcion.precio)
-            })
+            try {
+                total += Number(detalle.producto.precio)
+                detalle.opciones.forEach(opcion => {
+                    total += Number(opcion.precio)
+                })
+            } catch (error) {
+                console.log(`Error al obtener precios del carrito: ${error}`)
+                return 0
+            }
         })
         return total
     })
@@ -68,7 +121,9 @@ export const CartProvider = ({ children }) => {
         update: updateCart,
         clear: clearCart,
         getPrice: getPrice,
-    }), [cart, addToCart, removeFromCart, updateCart, clearCart])
+        submit: createOrder,
+
+    }), [cart, addToCart, removeFromCart, updateCart, clearCart, createOrder])
 
     return (
         <CartContext value={value} >

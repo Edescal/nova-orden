@@ -52,10 +52,10 @@ small {
     pointer-events: none;
 }
 
-.option-group:not(:last-child) {
-    border-bottom: 2px solid rgb(214, 214, 214);
+fieldset.option-group:not(:last-child) {
+    border-top: 2px solid rgb(233, 233, 233);
+    padding-top: 1rem;
     margin-bottom: 1rem;
-    padding-bottom: 1rem;
 }
 
 .decimal {
@@ -157,4 +157,32 @@ dialog:not([open]) {
 dialog.closing {
     opacity: 0;
     transition: all var(--dialog-param-duration) ease;
+}
+
+
+
+.overflow-flex {
+  overflow-y: visible;
+}
+
+@media (min-width: 768px) {
+  .overflow-flex {
+    overflow-y: scroll;
+  }
+}
+
+
+.categoria-nombre {
+  width: fit-content;
+  position: relative;
+  color: white;
+}
+.categoria {
+  position: relative;
+}
+
+.categoria-nombre {
+  width: fit-content;
+  position: relative;
+  color: white;
 }

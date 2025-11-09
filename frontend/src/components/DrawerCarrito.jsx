@@ -5,9 +5,34 @@ import Drawer from './footer/Drawer'
 import { useCart } from '../context/CartContext'
 import { numberToMoney } from '../utils/numberToMoney'
 import { useModal } from '../context/ModalContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
     const carrito = useCart()
+    const navigate = useNavigate()
+
+    const modal = useModal()
+
+    const [nombreCliente, setNombreCliente] = useState('')
+    const crearOrden = () => {
+        modal.confirm(
+            (<>
+                <span>Escribe tu nombre:</span>
+                <input type="text" placeholder='Te llamaremos cuando esté listo tu pedido' onChange={({ target }) => setNombreCliente(target.value.trim())} />
+            </>),
+            () => {
+                (async () => {
+                    const orden = await carrito.submit()
+                    if (orden) {
+                        navigate('/success', { state: { orden: orden } })
+                    }
+                })()
+            },
+            () => {
+                setNombreCliente('')
+            }
+        )
+    }
 
     return (
         <Drawer open={open} onClose={() => setOpen(false)}
@@ -15,7 +40,7 @@ export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
             footer={<>
                 <div className='d-flex flex-column justify-content-center'>
                     <div className='d-flex justify-content-center'>
-                        <ButtonDark text={carrito.cart.length === 0 ? 'Elige un producto' : `Finalizar compra ${numberToMoney(carrito.getPrice())}`} disabled={carrito.cart.length === 0 ? true : false}>
+                        <ButtonDark onClick={crearOrden} text={carrito.cart.length === 0 ? 'Elige un producto' : `Finalizar compra ${numberToMoney(carrito.getPrice())}`} disabled={carrito.cart.length === 0 ? true : false}>
                             {carrito.cart.length === 0 ? null :
                                 <>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,6 +52,7 @@ export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
                         </ButtonDark>
                     </div>
                     <a href="#" className='text-center my-3' onClick={() => setOpen(false)}>Seguir comprando</a>
+                    <span>{nombreCliente}</span>
                 </div>
             </>}>
             <Carrito></Carrito>

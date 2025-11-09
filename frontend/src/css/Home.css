@@ -1,23 +1,125 @@
-.home-area {
-    display: grid !important;
-    grid-template-areas:
-        "home-header"
-        "home-content"
-        "home-carousel"
-    ;
-    grid-template-rows: 2fr 3fr 1fr;
+
+
+
+
+.btn-categoria {
+    cursor: pointer;
+
+    &>* {
+        pointer-events: none;
+        transform: scale(1);
+        transform-origin: bottom;
+        transition: all 0.2s ease;
+    }
+
+    line-height: 1;
+    text-decoration: none;
     
+    height: 14em;
+    width: 14em;
+    color: black;
+    background-color: white;
+    border-radius: 15px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    row-gap: 0.5em;
+    transition: all 0.2s ease;
+
+    &:hover,
+    &:active {
+        scale: 1.05;
+        filter: brightness(0.95);
+        &>* {
+            transform: scale(1.2);
+            transform-origin: bottom;
+            transition: all 0.4s ease;
+        }
+        transition: all 0.2s ease;
+    }
 }
 
-.home-header {
-    grid-area: "home-header";
-    overflow: hidden;
+
+.scroll-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem;
+    scrollbar-width: none;
 }
 
-.home-content {
-    grid-area: "home-content";
+.scroll-container::-webkit-scrollbar {
+    display: none;
 }
 
-.home-carousel {
-    grid-area: "home-carousel";
+.scroll-item {
+    flex: 0 0 auto;
+    width: 10em;
+    height: 10em;
+    color: white;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
 }
+
+@media (max-width: 350px) {
+    .scroll-item {
+        flex: 0 0 auto;
+        width: 6em;
+        height: 6em;
+        color: white;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+
+    .btn-categoria {
+        cursor: pointer;
+        &>* {
+            pointer-events: none;
+            transform: scale(1);
+            transform-origin: bottom;
+            transition: all 0.2s ease;
+        }
+
+        background-color: white;
+        line-height: 1;
+        text-decoration: none;
+        
+        color: black;
+        height: 8em;
+        width: 12em;
+        /* border: 0.3em solid black; */
+        border-radius: 15px;
+
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        row-gap: 0.5em;
+        transition: all 0.2s ease;
+
+        &:hover,
+        &:active {
+            filter: brightness(0.9);
+
+            &>* {
+                transform: scale(1.2);
+                transform-origin: bottom;
+                transition: all 0.4s ease;
+            }
+
+            transition: all 0.2s ease;
+        }
+    }
+}
+
+
