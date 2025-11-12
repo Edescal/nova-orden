@@ -1,9 +1,12 @@
+import Cookie from 'universal-cookie'
+import Cookies from 'js-cookie';
+
 import React, { useCallback, useEffect, useState } from 'react'
 import { TextField, Button, useEventCallback } from '@mui/material'
 import { UserIcon } from '../assets/UserIcon'
 import { get } from '../utils/apiUtils'
 import { useNavigate } from 'react-router-dom'
-import { getCSRFToken, getSession, login } from '../utils/loginUtils'
+import { getCSRFToken, getSession, login, logout } from '../utils/loginUtils'
 
 
 export default function Login() {
@@ -14,38 +17,48 @@ export default function Login() {
 
     useEffect(() => {
         (async () => {
-            const session = await getSession()
-            console.log(session)
-            if (session.ok) {
-                const json = await session.json()
-                if (json) {
-                    if (json.isAuthenticated) {
-                        navigate('/dashboard')
-                    }
-                }
-            }
-
-            const token = await getCSRFToken()
-            if (token) {
-                console.log(token)
-                setCSRF(token)
-            }
-
-        })()
+            // const session = await getSession()
+            // console.log(session)
+            // if (session && session.isAuthenticated) {
+            //     console.log('Redirigir al dashboard')
+            // }
+        }
+        )()
     }, [])
 
     const handleSubmit = useEventCallback(async () => {
-        const response = await login(username, password, csrf_token)
-        if (!response.ok) {
-            console.warn('Error en el login:')
-            console.log(response.message)
+        const token = await getCSRFToken()
+        if (token){
+            console.log(token)
         }
-        
-        if (response.ok) {
-            console.log(response.message)
-            navigate('/dashboard')
+        const response = await login(username, password)
+
+        if (response) {
+            console.log(response)
+            console.log(response.headers)
+            const json = await response.json()
+            console.log(json)
+            // navigate('/dashboard')
+
         }
     })
+
+    const handleSession = async () => {
+        const response = await getSession()
+        if (response) {
+            console.log(response)
+        }
+    }
+
+
+    const handleLogout = async () => {
+        const response = await logout()
+        if (response) {
+            console.log(response)
+            const json = await response.json()
+            console.log(json)
+        }
+    }
 
     return (
         <main className='container-fluid'>
@@ -81,6 +94,16 @@ export default function Login() {
                         <div className='py-3 px-4'>
                             <Button variant='contained' className='fw-semibold fs-5' onClick={handleSubmit} fullWidth>
                                 Iniciar sesión
+                            </Button>
+                        </div>
+                        <div className='py-3 px-4'>
+                            <Button variant='contained' className='fw-semibold fs-5' onClick={handleSession} fullWidth>
+                                Get session
+                            </Button>
+                        </div>
+                        <div className='py-3 px-4'>
+                            <Button variant='contained' className='fw-semibold fs-5' onClick={handleLogout} fullWidth>
+                                Cerrar sesión
                             </Button>
                         </div>
                     </div>

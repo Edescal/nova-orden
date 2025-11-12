@@ -2,18 +2,19 @@ from django.db import transaction
 from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
+from rest_framework.status import HTTP_200_OK, HTTP_206_PARTIAL_CONTENT, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
 from rest_framework import viewsets, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 from django.http import JsonResponse, HttpResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.core.handlers.wsgi import WSGIRequest
 
 from users import models
@@ -140,74 +141,64 @@ def create_product_wrapper(data):
         wrapper.opciones.add(option)
     return wrapper
 
+
 @api_view(['GET'])
 def ultimas_ordenes(request):
     ordenes = models.Orden.objects.filter(estado=2).order_by('-fecha_creacion')[5:]
     serializer = serializers.OrdenSerializer(ordenes, many=True)
     return serializer.data
 
+
 """
 VISTAS PARA API DE AUTENTICACIÓN
 """
+@ensure_csrf_cookie
+def set_csrf_token(request):
+    """
+    This will be `/api/set-csrf-cookie/` on `urls.py`
+    """
+    return JsonResponse({"details": "CSRF cookie set"})
 
 
 @csrf_exempt
-def api_login(request:WSGIRequest):
-    if request.method == 'POST':
-        body = json.loads(request.body.decode('utf-8'))
-        username = body.get('username', None)
-        print(username)
-
-        return HttpResponse({
-            'success': 'OK',
-            'status': 200,
-        })
-
-
-@csrf_exempt
-def get_csrf(request):
-    response = JsonResponse({'detail': 'CSRF cookie set'})
-    response['X-CSRFToken'] = get_token(request)
-    return response
-
-
-@csrf_exempt
+@require_POST
+# @ensure_csrf_cookie
 def login_view(request):
     data = json.loads(request.body)
     username = data.get('username')
     password = data.get('password')
     if username is None or password is None:
+        print('¡Datos no proporcionados!')
         return JsonResponse({'message': 'Please provide username and password.'}, status=400)
 
     user = authenticate(username=username, password=password)
     if user is None:
+        print('!Credenciales no válidas!')
         return JsonResponse({'message': 'Invalid credentials.'}, status=400)
 
     login(request, user)
+    print('Inicio de sesión exitoso!')
     return JsonResponse({'message': 'Successfully logged in.'}, status=200)
 
 
-@csrf_exempt
+@require_POST
 def logout_view(request):
-    print(request)
     if not request.user.is_authenticated:
-        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
+        print('¡No has iniciado sesión!')
+        return JsonResponse({'detail': 'You\'re not logged in.'}, status=HTTP_406_NOT_ACCEPTABLE)
 
     logout(request)
-    return JsonResponse({'detail': 'Successfully logged out.'})
+    print('¡Sesión cerrada con éxito!')
+    return JsonResponse({'detail': 'Successfully logged out.'}, status=HTTP_200_OK)
 
 
-@ensure_csrf_cookie
-def session_view(request):
+@require_GET
+def get_session(request):
     if not request.user.is_authenticated:
-        return JsonResponse({'isAuthenticated': False})
+        print('¡No has iniciado sesión!')
+        return JsonResponse({'isAuthenticated': False}, status=HTTP_206_PARTIAL_CONTENT)
 
-    return JsonResponse({'isAuthenticated': True})
-
-
-@ensure_csrf_cookie
-def whoami_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'isAuthenticated': False})
-
-    return JsonResponse({'user': serializers.UsuarioSerializer(request.user).data})
+    return JsonResponse({
+        'isAuthenticated': True,
+        'user': serializers.UsuarioSerializer(request.user).data,
+    }, status=HTTP_200_OK)

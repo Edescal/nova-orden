@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { get } from "../utils/apiUtils";
 import OrdenCard from "./dashboard/OrdenCard";
 import { Box, Button, ButtonBase } from '@mui/material'
-import { getCSRFToken, getSession, getWhoami, logout } from "../utils/loginUtils";
+import { getCSRFToken, getSession, logout } from "../utils/loginUtils";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {

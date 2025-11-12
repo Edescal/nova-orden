@@ -14,11 +14,13 @@ router.register(r"wrappers", views.ProductoWrapperViewSet, basename="wrappers")
 router.register(r"negocios", views.NegocioViewSet, basename="negocios")
 
 urlpatterns = [
-    path('csrf/', views.get_csrf, name='api-csrf'),
-    path('session/', views.session_view, name='api-session'),
-    path('whoami/', views.whoami_view, name='api-whoami'),
+    path('csrf/', views.set_csrf_token, name='api-csrf'),
+    # path('session/', views.session_view, name='api-session'),
+    # path('whoami/', views.whoami_view, name='api-whoami'),
     path('login/', views.login_view, name='api-login'),
     path('logout/', views.logout_view, name='api-logout'),
+    path('session/', views.get_session, name='api-session'),
+
 
     path('ultimas-ordenes/', views.ultimas_ordenes, name='ultimas-ordenes'),
 

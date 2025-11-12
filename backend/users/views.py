@@ -11,6 +11,7 @@ from . import models, tests
 import datetime, unicodedata, re
 
 def index(request: HttpRequest):
+    print(request.user.is_authenticated)
     bd_creada = models.Negocio.objects.count() > 0
     if not bd_creada:
         tests.poblar_db()

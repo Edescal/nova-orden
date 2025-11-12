@@ -1,12 +1,18 @@
+import Cookies from 'universal-cookie'
+import axios from 'axios'
+
+axios.defaults.withCredentials = true
 
 export async function getCSRFToken() {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/csrf/", {
+        const response = await fetch("http://localhost:8000/api/csrf/", {
             headers: { "Content-Type": "application/json" },
             credentials: "include"
         })
 
-        
+        const cookies = new Cookies()
+        console.log(cookies)
+
         if (!response.ok) {
             throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
         }
@@ -19,43 +25,30 @@ export async function getCSRFToken() {
 
 export async function getSession() {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/session/", {
-            credentials: "include",
+        const response = await fetch("http://localhost:8000/api/session/", {
+            credentials: "same-origin",
             headers: {
                 "Content-Type": "application/json",
             },
         })
-        return response
+        if (!response.ok) {
+            throw new Error('No se pudo recuperar una sesión válida...')
+        }
+        return response.json()
     } catch (error) {
         console.warn(error)
         return false
     }
 }
 
-export async function getWhoami() {
+export async function login(username, password) {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/whoami/", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-        })
-        return response
-    } catch (error) {
-        console.warn(error)
-        return false
-    }
-}
-
-export async function login(username, password, csrf_token) {
-    try {
-        const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        const response = await fetch("http://localhost:8000/api/login/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrf_token,
             },
-            credentials: "include",
+            credentials: "same-origin",
             body: JSON.stringify({ 'username': username, 'password': password }),
         })
         return response
@@ -67,7 +60,7 @@ export async function login(username, password, csrf_token) {
 
 export async function logout(csrf_token) {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/logout/", {
+        const response = await fetch("http://localhost:8000/api/logout/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
