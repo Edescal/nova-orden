@@ -81,6 +81,7 @@ export default function AgregarProduto({ ref }) {
             if (data) {
                 console.info(data)
                 addItem(data)
+                dialog.current?.close()
             }
         } catch (error) {
             console.error(error)

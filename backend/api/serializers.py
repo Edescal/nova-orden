@@ -1,9 +1,43 @@
 from rest_framework import serializers
 from users import models
-import datetime, time
+import datetime, time, calendar
+from django.utils.timezone import localtime
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+
+User = get_user_model()
 
 def UNIX_timestamp(date : datetime.datetime):
-    return int(time.mktime(date.timetuple())) * 1000
+    local_date = localtime(date)
+    return int(calendar.timegm(local_date.timetuple())) * 1000
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'password', 'password2', 'nombre', 'apellidos')
+    
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Las contraseñas no coinciden."})
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email']
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+
+class UsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Usuario
+        fields = '__all__'
 
 class NegocioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -116,7 +150,6 @@ class OrdenSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
     pedidos = serializers.SerializerMethodField()
     fecha = serializers.SerializerMethodField()
-    numero = serializers.SerializerMethodField()
 
     def get_total(self, orden: models.Orden):
         return orden.calcular_total()
@@ -128,8 +161,3 @@ class OrdenSerializer(serializers.ModelSerializer):
     def get_fecha(self, orden: models.Orden):
         return UNIX_timestamp(orden.fecha)
     
-    def get_numero(self, orden: models.Orden):
-        last_numero = models.Orden.objects.filter(fecha__date = orden.fecha.date()).order_by('-numero').first()
-        if last_numero:
-            return last_numero.numero + 1
-        return 0

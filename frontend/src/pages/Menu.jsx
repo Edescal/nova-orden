@@ -11,6 +11,7 @@ import Footer from '../components/Footer'
 import DrawerCarrito from '../components/DrawerCarrito'
 
 export default function Menu() {
+    const navigate = useNavigate()
     const [open, setOpen] = useState(false)
 
     const [categorias, setCategorias] = useState([])
@@ -73,7 +74,10 @@ export default function Menu() {
 
     return (
         <>
-            <Navbar />
+            <Navbar title='¡Ordena ahora!'
+                    onLeftButtonClick={() => navigate('/home')}
+                    onRightButtonClick={() => console.log("TODO: Abrir el menú lateral...")}
+                  />
             <main className='container-fluid'>
                 <AgregarProduto ref={detalleProducto} />
 

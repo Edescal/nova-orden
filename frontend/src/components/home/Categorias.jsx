@@ -23,6 +23,15 @@ export default function Categorias() {
         ][categoria - 1]
     }
 
+
+    const toCategoria = (nombre) => {
+        return `/#${nombre.split(' ').join('-').toLowerCase()}`
+    }
+    const scrollWithOffset = (el) => {
+        const y = el.getBoundingClientRect().top + window.pageYOffset - 60;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+    };
+
     return (
         <article>
             <h3 className='my-3 text-center'>Busca por categoría</h3>
@@ -31,7 +40,7 @@ export default function Categorias() {
                     <div className='row justify-content-center g-0'>
                         {categorias.map(cat => (
                             <div key={cat.id} id={cat.id} className='col-6 d-flex justify-content-center col-sm-3 col-md-3 p-1'>
-                                <HashLink to={`/#${cat.nombre.split(' ').join('-').toLowerCase()}`} className='p-2 btn-categoria border'>
+                                <HashLink to={toCategoria(cat.nombre)} scroll={scrollWithOffset} className='p-2 btn-categoria border'>
                                     {mapToSvg(cat.id)}
                                     <span className='fw-semibold fs-6 text-center'>{cat.nombre}</span>
                                 </HashLink>

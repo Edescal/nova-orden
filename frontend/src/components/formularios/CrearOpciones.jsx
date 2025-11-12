@@ -58,7 +58,6 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
 
     useEffect(() => {
         if (initialData === null) return
-        console.log(initialData)
         setId(initialData.id)
         setNombre(initialData.descripcion ?? 'default')
         setProductoId(initialData.producto)
@@ -68,7 +67,6 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
     }, [initialData])
 
     useEffect(() => {
-        console.log(opciones)
         if (opciones.length === 0 && onZeroItems) {
             onZeroItems()
         }

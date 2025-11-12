@@ -2,6 +2,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 import uuid
 
 def producto_img_path(instance, filename):
@@ -31,11 +33,18 @@ class CustomUsuarioManager(BaseUserManager):
         return self.create_user(email, password, **kwargs)
     
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    uuid = models.UUIDField(
+    id = models.UUIDField(
         null=False,
         primary_key=True,
         default=uuid.uuid4,
         editable=False
+    )
+    username = models.CharField(
+        null=False, 
+        blank=False,
+        max_length=32,
+        default='admin',
+        unique=True,
     )
     email = models.EmailField(unique=True)
     nombre = models.CharField(
@@ -54,7 +63,8 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
 
-    USERNAME_FIELD = 'email'
+    USER_ID_FIELD = 'uuid'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
     objects : CustomUsuarioManager = CustomUsuarioManager()
@@ -305,6 +315,13 @@ class ProductoWrapper(models.Model):
                 f'  notas: {self.anotacion}\n'\
                 ')'
 
+class Status(models.IntegerChoices):
+    RECIBIDA = 0, _('Recibido')
+    EN_PROCESO = 1, _('En proceso')
+    LISTA = 2, _('Lista')
+    ENTREGADA = 3, _('Entregada')
+    CANCELADA = 4, _('Cancelada')
+
 class Orden(models.Model):
     class Meta:
         db_table_comment = "Órdenes realizadas"
@@ -332,6 +349,17 @@ class Orden(models.Model):
         default=None,
         related_name='ordenes'
     )
+    total = models.DecimalField(
+        null=False,
+        decimal_places=2,
+        max_digits= 8,
+        default=0
+    )
+    estado = models.IntegerField(
+        null=False,
+        choices=Status.choices,
+        default=Status.RECIBIDA,
+    )
     pedidos = models.ManyToManyField(ProductoWrapper)
 
     def calcular_total(self) -> float:
@@ -339,6 +367,20 @@ class Orden(models.Model):
         for p in self.pedidos.all():
             sum += p.calcular_subtotal()
         return sum
+    
+    def save(self, *args, **kwargs):
+        if not self.numero:
+            hoy = timezone.now().date()
+            ordenes_hoy=Orden.objects.filter(
+                negocio=self.negocio,
+                fecha__date=hoy
+            ).count()
+            self.numero = ordenes_hoy + 1
+        
+        super().save(*args, **kwargs)
+
+        self.total = self.calcular_total()
+        super().save(update_fields=['total'])
 
     def __str__(self):
         productos = ''

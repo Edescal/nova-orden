@@ -13,11 +13,11 @@ html {
 }
 
 h1 {
-    font-size: clamp(1.8rem, 3vw + 0.5rem, 3rem);
+    font-size: clamp(1.8rem, 3vw + 0.5rem, 2.5rem);
 }
 
 h2 {
-    font-size: clamp(1.7rem, 2.2vw + 0.4rem, 2.5rem);
+    font-size: clamp(1.7rem, 2.2vw + 0.4rem, 2.3rem);
 }
 
 h3 {
@@ -25,27 +25,27 @@ h3 {
 }
 
 h4 {
-    font-size: clamp(1.5rem, 2.2vw + 0.4rem, 1.9rem);
+    font-size: clamp(1.5rem, 2.2vw + 0.4rem, 1.2rem);
 }
 
 h5 {
-    font-size: clamp(1.4rem, 2.2vw + 0.4rem, 1.5rem);
+    font-size: clamp(1.4rem, 2.2vw + 0.4rem, 1.2rem);
 }
 
 h6 {
-    font-size: clamp(1.3rem, 2.2vw + 0.4rem, 1.4rem);
+    font-size: clamp(1.3rem, 2.2vw + 0.4rem, 1.2rem);
 }
 
 p {
-    font-size: clamp(1rem, 0.5vw + 0.6rem, 1.125rem);
+    font-size: clamp(0.8rem, 0.5vw + 0.6rem, 0.9rem);
 }
 
 span {
-    font-size: clamp(1rem, 0.5vw + 0.6rem, 1.125rem);
+    font-size: clamp(0.8rem, 0.5vw + 0.6rem, 0.9rem);
 }
 
 small {
-    font-size: clamp(0.85rem, 0.5vw + 0.6rem, 1.125rem);
+    font-size: clamp(0.6rem, 0.5vw + 0.6rem, 0.8rem);
 }
 
 .pointer-none {
@@ -185,4 +185,72 @@ dialog.closing {
   width: fit-content;
   position: relative;
   color: white;
+}
+
+
+@keyframes cardOpen {
+    from {
+        opacity: 0;
+        transform: perspective(1000px) rotateX(-15deg) translateY(-20px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: perspective(1000px) rotateX(0deg) translateY(0);
+        max-height: 1000px;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes cardOpen {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-20px);
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 2000px;
+        transform: translateY(0);
+        margin-bottom: 1rem;
+        padding-top: initial;
+        padding-bottom: initial;
+    }
+}
+
+@keyframes cardClose {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+        margin-bottom: 1rem;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-200px) ;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+.card-open {
+    animation: cardOpen 0.5s ease-out forwards;
+    overflow: hidden;
+}
+
+.card-close {
+    animation: cardClose 0.4s ease-in forwards;
+    overflow: hidden;
 }

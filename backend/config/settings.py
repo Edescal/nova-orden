@@ -27,15 +27,16 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", default=True)
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '192.168.0.5', #mi PC
-    '172.28.1.211', #mi PC,
-    '172.28.7.129',
-    '10.186.126.42',
+    '*'
+    # 'localhost',
+    # '127.0.0.1',
+    # '192.168.0.5', 
+    # '172.28.1.211',
+    # '172.28.7.129',
+    # '10.186.126.42',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://192.168.0.5:5173",
@@ -43,12 +44,27 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.0.5:5173", #mi PC
 
 ]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
+    # 'http://*'
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://192.168.0.5:5173", #mi PC
+    "http://192.168.0.5:5173",
 ]
+
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+# CSRF_COOKIE_HTTPONLY = True
+# SESSION_COOKIE_HTTPONLY = True
+
+
+# PROD ONLY
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+
+
+from datetime import timedelta
 
 # Application definition
 
@@ -76,12 +92,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-
+LOGIN_URL = '/login/'   # o el nombre del path a tu login
+LOGIN_REDIRECT_URL = '/dashboard/'  # opcional
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+
+    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
+    'USE_TZ': True,
 }
 
 ROOT_URLCONF = 'config.urls'
@@ -113,14 +132,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'alt': {
-        'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'citasweb',  
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '3306',                        
-    }
+    # 'alt': {
+    #     'ENGINE': 'django.db.backends.mysql',  
+    #     'NAME': 'citasweb',  
+    #     'USER': env('DATABASE_USER'),
+    #     'PASSWORD': env('DATABASE_PASSWORD'),
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',                        
+    # }
 }
 
 AUTH_USER_MODEL = 'users.Usuario'
@@ -163,7 +182,6 @@ TIME_ZONE = env("TIME_ZONE", default='America/Merida')
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

@@ -1,4 +1,4 @@
-import React, { useEffect, useEffectEvent, useState } from 'react'
+import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
 import ButtonDark from './ButtonDark'
 import Carrito from './Carrito'
 import Drawer from './footer/Drawer'
@@ -8,26 +8,30 @@ import { useModal } from '../context/ModalContext'
 import { useNavigate } from 'react-router-dom'
 
 export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
+    const modal = useModal()
     const carrito = useCart()
     const navigate = useNavigate()
-
-    const modal = useModal()
-
     const [nombreCliente, setNombreCliente] = useState('')
+
+    const mandarOrden = useEffectEvent(async () => {
+        const orden = await carrito.submit(nombreCliente)
+        if (orden) {
+            navigate('/success', {
+                state: { orden: orden }
+            })
+        }
+    })
+
     const crearOrden = () => {
         modal.confirm(
             (<>
-                <span>Escribe tu nombre:</span>
-                <input type="text" placeholder='Te llamaremos cuando esté listo tu pedido' onChange={({ target }) => setNombreCliente(target.value.trim())} />
+                <div className='d-flex flex-column align-items-center'>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="4em" height="4em" viewBox="0 0 24 24"><g fill="none"><path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" /><path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4" /><path stroke="currentColor" strokeLinecap="square" strokeWidth="2" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10Z" /><path stroke="currentColor" strokeLinecap="square" strokeWidth="2" d="M8 9v2m8-2v2m0 3a4 4 0 0 1-8 0z" /></g></svg>
+                    <span className='text-center fs-5 my-2'>Escribe tu nombre:</span>
+                    <input type="text" className='form-control' placeholder='Te llamaremos cuando esté listo tu pedido' onChange={({ target }) => setNombreCliente(target.value)} />
+                </div>
             </>),
-            () => {
-                (async () => {
-                    const orden = await carrito.submit()
-                    if (orden) {
-                        navigate('/success', { state: { orden: orden } })
-                    }
-                })()
-            },
+            mandarOrden,
             () => {
                 setNombreCliente('')
             }
@@ -52,7 +56,6 @@ export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
                         </ButtonDark>
                     </div>
                     <a href="#" className='text-center my-3' onClick={() => setOpen(false)}>Seguir comprando</a>
-                    <span>{nombreCliente}</span>
                 </div>
             </>}>
             <Carrito></Carrito>

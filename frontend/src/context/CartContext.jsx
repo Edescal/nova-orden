@@ -34,7 +34,7 @@ const cartReducer = (state = [], action) => {
             return state
         case 'reset':
             console.log('TODO: Reset')
-            return []
+            return state
         default:
             console.log('Invalid state')
             return state
@@ -66,8 +66,8 @@ export const CartProvider = ({ children }) => {
             type: 'reset',
             data: producto
         }), [])
-    const createOrder = useCallback(async (redirectTo) => {
-        console.log('QUE COÑO')
+    const createOrder = useCallback(async (nombreCliente="SDS") => {
+        console.log(`Creando orden para: ${nombreCliente}`)
         if (isBusy) {
             console.warn('El carrito está ocupado...')
             return false
@@ -77,7 +77,7 @@ export const CartProvider = ({ children }) => {
             const body = {
                 fecha: new Date().getTime(),
                 negocio: "f32feeea-7313-4115-bdb9-fb65a60f0b64",
-                nombre_cliente: "Pobre pendejo",
+                nombre_cliente: nombreCliente,
                 productos: cart,
             }
             const resultado = await post('/api/ordenes/', body)

@@ -1,8 +1,13 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+
+from django.contrib import messages
+from django.shortcuts import render, redirect
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.db import transaction
 from . import models, tests
+
 import datetime, unicodedata, re
 
 def index(request: HttpRequest):
@@ -11,6 +16,10 @@ def index(request: HttpRequest):
         tests.poblar_db()
         return HttpResponse('Se creó la base de datos, actualiza la página...')
     else:
+        admin : models.Usuario = models.Usuario.objects.first()
+        # admin.set_password('password')
+        admin.save()
+
         if request.method == 'POST':
             file = request.FILES.get('foto', None)
             producto_id = request.POST.get('id', None)
@@ -29,6 +38,38 @@ def index(request: HttpRequest):
     
     return render( request,'index.html')
 
+
+@login_required
 def dashboard(request: HttpRequest):
 
     return render(request, 'dashboard.html')
+
+
+def login_view(request):
+    if request.method == "POST":
+        print('QUEEE')
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        try:
+            usuario = models.Usuario.objects.get(username=username)
+        except models.Usuario.DoesNotExist:
+            print("Usuario no encontrado")
+            messages.error(request, "Usuario no encontrado")
+            return redirect("login")
+
+        if usuario.check_password(password):
+            login(request, usuario)
+            print("Correcto")
+            return redirect("dashboard")
+        else:
+            print("Contraseña incorrecta")
+            messages.error(request, "Contraseña incorrecta")
+
+    return render(request, "login.html")
+
+
+def logout_view(request):
+    logout(request)
+    request.session.flush()
+    return redirect("login")
