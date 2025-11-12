@@ -239,7 +239,7 @@ dialog.closing {
     }
     to {
         opacity: 0;
-        transform: translateY(-200px) ;
+        transform: translateY(-100px) ;
         margin-bottom: 0;
         padding-top: 0;
         padding-bottom: 0;
