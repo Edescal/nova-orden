@@ -34,14 +34,14 @@ export default function Home() {
 
   const handleClick = () => {
     setTimeout(() => {
-      navigate('/')
+      navigate('/menu')
     }, 300)
   }
 
   return (
     <>
       <Navbar title='¡Busca restaurantes!'
-        onLeftButtonClick={() => navigate('/')}
+        onLeftButtonClick={() => navigate('/menu')}
         onRightButtonClick={() => console.log("TODO: Abrir el menú lateral...")}
       />
       <main className='container-fluid px-0'>

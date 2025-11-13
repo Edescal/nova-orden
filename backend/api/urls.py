@@ -16,11 +16,13 @@ router.register(r"negocios", views.NegocioViewSet, basename="negocios")
 urlpatterns = [
     path('csrf/', views.get_csrf, name='api-csrf'),
     path('session/', views.session_view, name='api-session'),
-    path('whoami/', views.whoami_view, name='api-whoami'),
     path('login/', views.login_view, name='api-login'),
-    path('logout/', views.logout_view, name='api-logout'),
+    # path('logout/', views.logout_view, name='api-logout'),
 
     path('ultimas-ordenes/', views.ultimas_ordenes, name='ultimas-ordenes'),
 
+    path('token/', TokenObtainPairView.as_view(), name='token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('whoami/', views.create_post, name='token_refresh'),
 ] + router.urls

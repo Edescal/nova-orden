@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { TextField, Button, Select, MenuItem, InputLabel, InputAdornment, Input, IconButton } from '@mui/material'
 import { PlusIcon } from '../../assets/PlusIcon'
-import { CrossIcon } from '../../assets/CrossIcon'
 
-export default function CrearOpciones({ initialData = null, onZeroItems = null }) {
+//onZeroItems lo elimina en el padre 
+export default function CrearOpciones({ initialData = null, onZeroItems = null, onChangeData = null }) {
     const [nombre, setNombre] = useState('Nombre del grupo')
 
     const [id, setId] = useState(-1)
@@ -13,6 +13,10 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
         descripcion: "Opción extra 1",
         precio: 0,
     }])
+
+    useEffect(() => {
+        onChangeData?.(generarDatos())
+    }, [nombre, id, productoId, opciones])
 
     const addItem = () => {
         setOpciones(
@@ -37,11 +41,11 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
         ));
     }
 
-    const submit = () => {
+    const generarDatos = () => {
         const objeto = {
             id: id,
             nombre: nombre,
-            producto: undefined,
+            producto: productoId,
             options: []
         }
         opciones.forEach(element => {
@@ -52,8 +56,7 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
             }
             objeto.options.push(opcion)
         });
-
-        console.log(objeto)
+        return objeto
     }
 
     useEffect(() => {
@@ -74,7 +77,7 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
 
 
     return (
-        <div className='p-4 my-2'>
+        <div className='card p-3 my-2'>
             <div className='d-flex justify-content-between mb-3'>
                 <h5 className='text-secondary'>{nombre ? nombre : 'Grupo de opciones'}</h5>
                 <button type='button' className='btn btn-lg btn-close' onClick={() => onZeroItems?.()} ></button>
@@ -129,8 +132,23 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
                                 placeholder={`00.00`}
                                 variant='standard'
                                 fullWidth
+                                type='number'
                                 value={opcion.precio}
-                                onChange={({ target }) => updateOption(opcion.id, { precio: target.value })}
+                                onChange={({ target }) => {
+                                    if (!isNaN(target.value)) {
+                                        updateOption(opcion.id, { precio: target.value })
+                                    }
+                                }}
+                                onBlur={({ target }) => {
+                                    let value = target.value;
+                                    if (isNaN(value)) value = "";
+                                    if (/^[0-9]*\.?[0-9]*$/.test(value)) {
+                                        updateOption(opcion.id, { precio: Number(value < 0 ? 0 : value > 100 ? 100 : value).toFixed(2) })
+                                    }
+                                    else {
+                                        updateOption(opcion.id, { precio: Number(0).toFixed(2) })
+                                    }
+                                }}
                                 slotProps={{
                                     input: {
                                         startAdornment: <InputAdornment position="start">$</InputAdornment>,
@@ -146,7 +164,7 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null }
                     );
                 }) : null}
             </fieldset>
-            <button type='button' className='btn btn-danger' onClick={submit}>Test submit</button>
+            {/* <button type='button' className='btn btn-danger' onClick={submit}>Test submit</button> */}
         </div>
     )
 }

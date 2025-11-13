@@ -1,12 +1,8 @@
 
-// const BASE_URL = 'http://192.168.0.5:8000'
-const BASE_URL = 'http://127.0.0.1:8000'
-// const BASE_URL = 'http://10.186.126.42:8000'
-
 
 export async function get(url, json = true) {
     try {
-        const FULL_URL = url.startsWith('http') ? url : `${BASE_URL}${url}`
+        const FULL_URL = url.startsWith('http') ? url : `${import.meta.env.VITE_BASE_URL}${url}`
         const response = await fetch(FULL_URL)
         if (response.status == 404) {
             throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
@@ -27,7 +23,7 @@ export async function get(url, json = true) {
 
 export async function post(url, body) {
     try {
-        const response = await fetch(`${BASE_URL}${url}`, {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}${url}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -44,11 +40,34 @@ export async function post(url, body) {
 }
 
 export async function patch(url, body) {
-     try {
-        const response = await fetch(`${BASE_URL}${url}`, {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}${url}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
+        })
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
+        }
+        const data = await response.json()
+        return data
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+export async function put(url, body, setMultiform = false) {
+    try {
+        const headers = setMultiform ? {
+            'Accept': 'application/json, application/xml, text/plain, text/html, *.*'
+        } : { 
+            'Content-Type': 'application/json' 
+        }
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}${url}`, {
+            method: 'PUT',
+            headers: headers, 
+            body: setMultiform ? body : JSON.stringify(body)
         })
         if (!response.ok) {
             throw new Error(`HTTP error: ${response.status} ${response.statusText}`)

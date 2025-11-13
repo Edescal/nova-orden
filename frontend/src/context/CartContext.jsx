@@ -34,7 +34,7 @@ const cartReducer = (state = [], action) => {
             return state
         case 'reset':
             console.log('TODO: Reset')
-            return state
+            return []
         default:
             console.log('Invalid state')
             return state

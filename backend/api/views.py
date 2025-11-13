@@ -2,10 +2,11 @@ from django.db import transaction
 from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT
 from rest_framework import viewsets, permissions
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.decorators import api_view
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 from django.contrib.auth import authenticate, login, logout
@@ -15,6 +16,8 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core.handlers.wsgi import WSGIRequest
+
+
 
 from users import models
 from . import serializers
@@ -32,7 +35,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
     queryset = models.Producto.objects.all().order_by("id")
     serializer_class = serializers.ProductoSerializer
     permission_classes = [permissions.AllowAny] 
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = models.Categoria.objects.all().order_by("id")
@@ -205,9 +208,31 @@ def session_view(request):
     return JsonResponse({'isAuthenticated': True})
 
 
-@ensure_csrf_cookie
-def whoami_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'isAuthenticated': False})
 
-    return JsonResponse({'user': serializers.UsuarioSerializer(request.user).data})
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def jwt_logout(request):
+    print(1)
+    try:
+        print(2)
+        refresh_token = request.data.get('refresh', None)
+        if not refresh_token:
+            return Response({'detail': 'Refresh token requerido.'}, status=HTTP_400_BAD_REQUEST)
+        
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        print(3)
+        return Response(HTTP_205_RESET_CONTENT)
+    except Exception as e:
+        return JsonResponse({'detail': 'Token inválido o en la lista negra'})
+
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
+def create_post(request):
+    print(request.user)
+    data = serializers.UsuarioSerializer(request.user).data
+    return Response({
+        'user': data
+    })

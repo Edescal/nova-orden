@@ -8,8 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 User = get_user_model()
 
 def UNIX_timestamp(date : datetime.datetime):
-    local_date = localtime(date)
-    return int(calendar.timegm(local_date.timetuple())) * 1000
+    return int(date.timestamp()) * 1000
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])

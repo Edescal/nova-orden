@@ -1,24 +1,54 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import CrearGrupoOpciones from "./CrearGrupoOpciones";
-import { get } from "../../utils/apiUtils";
+import { get, post, put } from "../../utils/apiUtils";
 import { TextField, Button, Select, MenuItem, InputLabel, InputAdornment, Typography, Box, IconButton, Icon } from '@mui/material'
 import DropZone from "./DropZone";
 import { CrossIcon } from "../../assets/CrossIcon";
 import noimgfound from '../../assets/noimgfound.jpg'
+import '../../css/FormProducto.css'
+import { useModal } from "../../context/ModalContext";
 
-export default function FormProducto({ producto = null }) {
+export default function FormProducto({ producto = null, onSubmit = null, type = 'editar' }) {
+    const modal = useModal()
+
     const NOMBRE_MAX_LENGTH = 64
     const DESCRIPCION_MAX_LENGTH = 128
 
     const [categorias, setCategorias] = useState([])
 
+    const [id, setId] = useState(-1)
     const [nombre, setNombre] = useState('')
     const [descripcion, setDescripcion] = useState('')
     const [precio, setPrecio] = useState(0)
     const [categoria, setCategoria] = useState(-1)
     const [imagen, setImagen] = useState('')
+    const [base64imagen, setBase64Imagen] = useState(null)
     const [grupos, setGrupos] = useState([])
     const [file, setFile] = useState(null)
+
+    const validarDatos = () => {
+        if (!nombre.trim()) {
+            console.log('El nombre está vacío');
+            return false;
+        }
+
+        if (!descripcion.trim()) {
+            console.log('La descripción está vacía');
+            return false;
+        }
+
+        if (precio <= 0) {
+            console.log('El precio debe ser mayor que 0');
+            return false;
+        }
+
+        if (categoria === -1) {
+            console.log('La categoría no está seleccionada');
+            return false;
+        }
+
+        return true;
+    };
 
     useEffect(() => {
         (async () => {
@@ -32,6 +62,7 @@ export default function FormProducto({ producto = null }) {
 
     useEffect(() => {
         if (!producto) return
+        setId(producto.id)
         setNombre(producto.nombre)
         setDescripcion(producto.descripcion)
         setPrecio(producto.precio)
@@ -45,15 +76,74 @@ export default function FormProducto({ producto = null }) {
             setImagen(null)
             return
         }
+        const reader = new FileReader()
+        reader.onload = () => {
+            const base64 = reader.result.split(',')[1]
+            setBase64Imagen(base64)
+        }
+        reader.readAsDataURL(file)
+
         const url = URL.createObjectURL(file)
         setImagen(url)
         return () => URL.revokeObjectURL(url)
     }, [file])
 
+    const handleSubmit = (grupos) => {
+        if (!validarDatos()) {
+            console.log('Hay datos no válidos')
+            return
+        }
+
+        console.log('Recuperando información de grupos...')
+        const producto = {
+            id,
+            nombre,
+            descripcion,
+            precio,
+            grupos,
+            categoria: categoria,
+            visible: true,
+            negocio: "3c02f6c8-b916-424e-9bd0-0cb1334b3de2",
+        }
+        console.log(producto)
+
+        modal.confirm(
+            <>
+                <span>Estás a punto de modificar un producto, ¿estás de acuerdo?</span>
+            </>,
+            () => realizarTransacción(producto)
+        )
+    }
+
+    const realizarTransacción = useEffectEvent(async (producto) => {
+        const method = type === 'editar' ? put : type === 'crear' ? post : null
+        if (!method) {
+            return
+        }
+        const URL = type === 'editar' ? `/api/productos/${id}/` : type === 'crear' ? `/api/productos/` : null
+
+        const response = await method(URL, producto)
+        if (response) {
+            console.log(response)
+            console.log('Se actualizó un producto')
+            if (file) {
+                const formdata = new FormData()
+                formdata.append('imagen', file)
+                formdata.append('categoria', categoria)
+                console.log(file)
+                const imgResponse = await put(`/api/productos/${response.id}/`, formdata, true)
+                if (imgResponse) {
+                    console.log('Se actualizó su imagen')
+                    console.log(imgResponse)
+                }
+            }
+            onSubmit?.(response)
+        }
+    })
+
     return (
-        <form action="#" className='card p-3 d-flex flex-column flex-sm-row w-100'>
-            <div className="col-12 col-sm-6 p-3">
-                <h5 className="text-center mb-4">Agregar un nuevo producto</h5>
+        <form action="#" className='p-3 d-flex flex-column w-100' method="dialog">
+            <div className="col-12 p-3">
                 <div className="mb-3 row">
                     <div className="col-4 col-sm-3 d-flex align-items-center">
                         <div className="ratio ratio-1x1">
@@ -135,7 +225,17 @@ export default function FormProducto({ producto = null }) {
                         id="precio"
                         size="small"
                         value={precio}
-                        onChange={({ target }) => setPrecio(target.value)}
+                        onChange={({ target }) => {
+                            const value = target.value;
+                            setPrecio(value);
+                        }}
+                        onBlur={({ target }) => {
+                            let value = parseFloat(target.value);
+                            if (isNaN(value)) value = "";
+                            if (/^[0-9]*\.?[0-9]*$/.test(value)) {
+                                setPrecio(Number(value).toFixed(2));
+                            }
+                        }}
                         hiddenLabel
                         fullWidth
                         slotProps={{
@@ -159,7 +259,7 @@ export default function FormProducto({ producto = null }) {
                         {
                             categorias.length > 0 ? (
                                 categorias.map(categoria => <MenuItem key={categoria.id} value={categoria.id}>{categoria.nombre}</MenuItem>)) :
-                                <MenuItem value="" disables>No hay categorías para mostrar</MenuItem>
+                                <MenuItem value="" disabled>No hay categorías para mostrar</MenuItem>
                         }
                     </Select>
                 </div>
@@ -179,9 +279,10 @@ export default function FormProducto({ producto = null }) {
             </div>
 
             <hr />
+            <div className="border-end d-none d-sm-block"></div>
 
-            <div className="col-12 col-sm-6 p-3">
-                <CrearGrupoOpciones initialData={grupos}></CrearGrupoOpciones>
+            <div className="col-12 p-3" >
+                <CrearGrupoOpciones initialData={grupos} onSubmit={handleSubmit}></CrearGrupoOpciones>
             </div>
         </form>
     )

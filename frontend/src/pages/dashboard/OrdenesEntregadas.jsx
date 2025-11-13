@@ -9,12 +9,12 @@ export default function OrdenesEntregadas() {
     useEffect(() => {
         fetchOrdenes()
     }, [])
-    
-    const fetchOrdenes = async() => {
+
+    const fetchOrdenes = async () => {
         const data = await get('/api/ordenes')
         if (data) {
             setOrdenes(data.results.filter(x => x.estado === 3))
-    
+
         }
     }
 
@@ -23,13 +23,29 @@ export default function OrdenesEntregadas() {
     }, [ordenes])
 
     return (
-        <Template>
+        <Template activeBtns={['terminadas']}>
             <main className="container my-4">
                 <h3 className="mb-3">Historial de Órdenes Entregadas</h3>
 
-                {ordenes.map((orden) => (
+                {ordenes.length > 0 ? ordenes.map((orden) => (
                     <OrdenRow key={orden.id} orden={orden} onEstadoChange={() => fetchOrdenes()}></OrdenRow>
-                ))}
+                )) :
+                    <div className="card">
+                        <div className="card-body">
+                            <div className="text-center py-5">
+                                <svg xmlns="http://www.w3.org/2000/svg" className='text-muted' width="5em" height="5em" viewBox="0 0 24 24">
+                                    <g fill="none">
+                                        <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" />
+                                        <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4" />
+                                        <path stroke="currentColor" strokeLinecap="square" strokeWidth="1.25" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10Z" />
+                                        <path stroke="currentColor" strokeLinecap="square" strokeWidth="1.25" d="M8 9v2m8-2v2m0 3a4 4 0 0 1-8 0z" />
+                                    </g>
+                                </svg>
+                                <p className="text-muted fs-5">No hay órdenes finalizadas</p>
+                            </div>
+                        </div>
+                    </div>
+                }
             </main>
         </Template>
     )

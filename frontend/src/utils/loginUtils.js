@@ -1,3 +1,5 @@
+import axios from 'axios'
+import { jwtDecode } from 'jwt-decode'
 
 export async function getCSRFToken() {
     try {
@@ -24,21 +26,6 @@ export async function getSession() {
             headers: {
                 "Content-Type": "application/json",
             },
-        })
-        return response
-    } catch (error) {
-        console.warn(error)
-        return false
-    }
-}
-
-export async function getWhoami() {
-    try {
-        const response = await fetch("http://127.0.0.1:8000/api/whoami/", {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
         })
         return response
     } catch (error) {

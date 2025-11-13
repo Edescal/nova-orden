@@ -1,4 +1,4 @@
-import React, { Children, createContext, useCallback, useContext, useRef, useState } from 'react'
+import React, { Children, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import Dialog from '../components/Dialog'
 import ButtonDark from '../components/ButtonDark'
 
@@ -12,12 +12,14 @@ export default function ModalProvider({ children }) {
     const [onCancelCallback, setOnCancelCallback] = useState([])
 
     const dialog = useRef()
+    const [open, setOpen] = useState(false)
     const confirm = useCallback((content = null, onConfirm = null, onCancel = null) => {
+        setOpen(true)
         setContent(content)
         setOnConfirCallback(() => onConfirm)
         setOnCancelCallback(() => onCancel)
         dialog.current?.showModal()
-    }, [])
+    }, [open, dialog])
 
     const handleCancel = () => {
         dialog.current?.close()
@@ -25,13 +27,19 @@ export default function ModalProvider({ children }) {
             onCancelCallback()
             console.log('mierdaaa')
         }
+        setOpen(false)
     }
     const handleConfirm = () => {
         dialog.current?.close()
         if (onConfirmCallback) {
             onConfirmCallback()
         }
+        setOpen(false)
     }
+
+    useEffect(() => {
+
+    }, [open])
 
     const value = {
         confirm: confirm,

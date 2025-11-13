@@ -27,33 +27,29 @@ export default function Papelera() {
 
 
     return (
-        <Template>
-            <div className="row g-4">
+        <Template activeBtns={['papelera']}>
+            <div className="container my-4">
+                <h3 className="mb-3">Historial de Órdenes Eliminadas</h3>
 
-                <div className="col-12 col-lg-12">
-                    <div className="card">
-                        <div className="card-body">
-                            {ordenesEliminadas.length > 0 ? (
-                                <div className="row">
-                                    {ordenesEliminadas.map(orden => (
-                                        <div key={orden.id} className="col-12 col-md-6 col-lg-4">
-                                            <OrdenEliminadaCard
-                                                orden={orden}
-                                                onRestore={null}
-                                                onDeletePermanent={null}
-                                            />
-                                        </div>
-                                    ))}
+                <div className="row">
+                    <div className="col-12 col-lg-12">
+                        {ordenesEliminadas.length > 0 ? (
+                            ordenesEliminadas.map(orden => (
+                                <div key={orden.id} className="col-12 col-md-6 col-lg-12">
+                                    <OrdenEliminadaCard
+                                        orden={orden}
+                                        onRestore={null}
+                                        onDeletePermanent={null}
+                                    />
                                 </div>
-                            ) : (
-                                <div className="text-center py-5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="4em" height="4em" viewBox="0 0 24 24" className="text-muted mb-3">
-                                        <path fill="currentColor" d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3H9M7 6h10v13H7V6m2 2v9h2V8H9m4 0v9h2V8h-2Z" />
-                                    </svg>
-                                    <p className="text-muted fs-5">No hay órdenes eliminadas</p>
-                                </div>
-                            )}
-                        </div>
+                            ))) : (
+                            <div className="text-center py-5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="4em" height="4em" viewBox="0 0 24 24" className="text-muted mb-3">
+                                    <path fill="currentColor" d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3H9M7 6h10v13H7V6m2 2v9h2V8H9m4 0v9h2V8h-2Z" />
+                                </svg>
+                                <p className="text-muted fs-5">No hay órdenes eliminadas</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -93,7 +89,7 @@ const OrdenEliminadaCard = ({ orden, onRestore, onDeletePermanent }) => {
     }
 
     return (
-        <div ref={cardRef} className="card mb-3 shadow-sm">
+        <div ref={cardRef} className="card mb-3 shadow overflow-hidden border-start-1 border-top-0 border-bottom-0 border-end-0 border-5 border-dark">
             <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                     <div className='w-100'>
@@ -122,12 +118,6 @@ const OrdenEliminadaCard = ({ orden, onRestore, onDeletePermanent }) => {
                     >
                         Restaurar
                     </button>
-                    {/* <button
-                        className="btn btn-danger text-white fw-semibold"
-                        onClick={() => onDeletePermanent(orden.id)}
-                    >
-                        Eliminar definitivamente
-                    </button> */}
                 </div>
             </div>
         </div>

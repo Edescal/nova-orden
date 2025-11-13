@@ -7,7 +7,7 @@ import { useModal } from '../context/ModalContext'
 import { get } from '../utils/apiUtils'
 import ProductoCarrito from './ProductoCarrito'
 
-export default function Carrito() {
+export default function ItemCarrito() {
     const carrito = useCart()
     const modal = useModal()
 

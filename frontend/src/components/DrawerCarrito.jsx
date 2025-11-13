@@ -1,11 +1,11 @@
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
 import ButtonDark from './ButtonDark'
-import Carrito from './Carrito'
+import ItemCarrito from './ItemCarrito'
 import Drawer from './footer/Drawer'
 import { useCart } from '../context/CartContext'
 import { numberToMoney } from '../utils/numberToMoney'
 import { useModal } from '../context/ModalContext'
-import { useNavigate } from 'react-router-dom'
+import { replace, useNavigate } from 'react-router-dom'
 
 export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
     const modal = useModal()
@@ -17,7 +17,10 @@ export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
         const orden = await carrito.submit(nombreCliente)
         if (orden) {
             navigate('/success', {
-                state: { orden: orden }
+                state: { 
+                    orden: orden, 
+                    replace: true 
+                }
             })
         }
     })
@@ -58,7 +61,7 @@ export default function DrawerCarrito({ open = false, setOpen = _ => { } }) {
                     <a href="#" className='text-center my-3' onClick={() => setOpen(false)}>Seguir comprando</a>
                 </div>
             </>}>
-            <Carrito></Carrito>
+            <ItemCarrito></ItemCarrito>
         </Drawer>
     )
 }

@@ -12,19 +12,22 @@ import Dashboard from './pages/Dashboard'
 import Success from './pages/Success'
 import Papelera from './pages/dashboard/Papelera'
 import OrdenesEntregadas from './pages/dashboard/OrdenesEntregadas'
+import GestionProductos from './pages/dashboard/GestionProductos'
 
 function App() {
 	return (
 		<>
 			<Routes>
-				<Route path='/' element={<Menu></Menu>} />
-				<Route path='/home' element={<Home />} />
+				<Route path='/' element={<Home />} />
+				<Route path='/menu' element={<Menu></Menu>} />
 				<Route path='/checkout' element={<ProductoCard />} />
 				<Route path='/success' element={<Success />} />
+				
 				<Route path='/login' element={<Login />} />
 				<Route path='/dashboard' element={<Dashboard />} />
 				<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
 				<Route path='/papelera' element={<Papelera />} />
+				<Route path='/productos' element={<GestionProductos />} />
 			</Routes>
 		</>
 	)

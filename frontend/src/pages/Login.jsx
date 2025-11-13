@@ -1,51 +1,41 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useEffectEvent, useState } from 'react'
 import { TextField, Button, useEventCallback } from '@mui/material'
 import { UserIcon } from '../assets/UserIcon'
 import { get } from '../utils/apiUtils'
 import { useNavigate } from 'react-router-dom'
 import { getCSRFToken, getSession, login } from '../utils/loginUtils'
+import { useAuth } from '../context/AuthContext'
 
 
 export default function Login() {
+    const auth = useAuth()
+
     const [csrf_token, setCSRF] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const navigate = useNavigate()
 
+    const handleSubmit = useEffectEvent(async () => {
+        const response = await auth.login(username, password)
+    })
+
+    const handleWhoAmI = useEffectEvent(async () => {
+        const response = await auth.whoami()
+        console.log(response)
+    })
+
+    const handleLogout = useEffectEvent(async () => {
+        const response = await auth.logout()
+        console.log(response)
+    })
+
+
     useEffect(() => {
-        (async () => {
-            const session = await getSession()
-            console.log(session)
-            if (session.ok) {
-                const json = await session.json()
-                if (json) {
-                    if (json.isAuthenticated) {
-                        navigate('/dashboard')
-                    }
-                }
-            }
-
-            const token = await getCSRFToken()
-            if (token) {
-                console.log(token)
-                setCSRF(token)
-            }
-
-        })()
-    }, [])
-
-    const handleSubmit = useEventCallback(async () => {
-        const response = await login(username, password, csrf_token)
-        if (!response.ok) {
-            console.warn('Error en el login:')
-            console.log(response.message)
-        }
-        
-        if (response.ok) {
-            console.log(response.message)
+        if (auth.user) {
             navigate('/dashboard')
         }
-    })
+
+    }, [auth.user])
 
     return (
         <main className='container-fluid'>
@@ -81,6 +71,16 @@ export default function Login() {
                         <div className='py-3 px-4'>
                             <Button variant='contained' className='fw-semibold fs-5' onClick={handleSubmit} fullWidth>
                                 Iniciar sesión
+                            </Button>
+                        </div>
+                        <div className='py-3 px-4'>
+                            <Button variant='contained' className='fw-semibold fs-5' onClick={handleWhoAmI} fullWidth>
+                                Test
+                            </Button>
+                        </div>
+                        <div className='py-3 px-4'>
+                            <Button variant='contained' className='fw-semibold fs-5' onClick={handleLogout} fullWidth>
+                                Logout
                             </Button>
                         </div>
                     </div>
