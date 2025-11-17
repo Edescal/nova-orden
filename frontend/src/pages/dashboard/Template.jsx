@@ -11,7 +11,6 @@ import { useAuth } from "../../context/AuthContext";
 export default function Template({ children, activeBtns = [] }) {
     const auth = useAuth()
 
-    const [csrf, setCSRF] = useState('')
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const navigate = useNavigate()
 
@@ -108,7 +107,7 @@ export default function Template({ children, activeBtns = [] }) {
                                 <button className="btn btn-light" onClick={() => setSidebarOpen(!sidebarOpen)}>
                                     ☰
                                 </button>
-                                <h2 className="mb-0">Panel Principal de Órdenes</h2>
+                                <h2 className="mb-0">Panel de administración</h2>
                             </div>
                             <div className="d-flex align-items-center gap-3">
                                 <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>

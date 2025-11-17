@@ -1,16 +1,8 @@
 import React, { useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { Route } from 'react-router-dom'
+import { Route, Outlet, Navigate } from 'react-router-dom'
 
-export default function ProtectedRoute({ children, permissions=[] }) {
+export default function ProtectedRoute({ permissions = [], redirectTo = 'login' }) {
     const auth = useAuth()
-
-    useEffect(() => {   
-        console.log(auth)
-    }, [])
-
-
-    return (<Route>
-        {children}
-    </Route>)
+    return auth.user ? <Outlet /> : <Navigate to={redirectTo} replace />
 }

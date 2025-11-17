@@ -6,8 +6,11 @@ import { numberToMoney } from '../../utils/numberToMoney';
 import { useEffect, useState } from 'react';
 import { get, put } from '../../utils/apiUtils';
 import Dialog from '../../components/Dialog';
+import { useModal } from '../../context/ModalContext';
 
-const ProductTable = ({ products = [], onAdd, onEdit, page=0, rowcount = 10, handlePaginationChange = null }) => {
+const ProductTable = ({ products = [], onAdd, onEdit, page = 0, rowcount = 10, handlePaginationChange = null }) => {
+    const modal = useModal()
+
     const [categorias, setCategorias] = useState([])
     const [rows, setRows] = useState([]);
     const [selectedRows, setSelectedRows] = useState([])
@@ -40,23 +43,28 @@ const ProductTable = ({ products = [], onAdd, onEdit, page=0, rowcount = 10, han
         }
     }
     const handleSaveSelection = () => {
-        console.log(api)
-        if (selectedRows.length > 0) {
-            selectedRows.forEach(async id => {
-                // const productoValues = api.getCellParams(id, 'id').row
-                const productoValues = api.getRowParams(id).row
-                console.log(productoValues)
-                const data = {
-                    'id': productoValues.id,
-                    'categoria': productoValues.categoria,
-                    'visible': productoValues.visible,
+        modal.confirm(
+            <>
+                <span>¿Deseas actualizar la información seleccionada?</span>
+            </>,
+            () => {
+                if (selectedRows.length > 0) {
+                    selectedRows.forEach(async id => {
+                        const productoValues = api.getRowParams(id).row
+                        console.log(productoValues)
+                        const data = {
+                            'id': productoValues.id,
+                            'categoria': productoValues.categoria,
+                            'visible': productoValues.visible,
+                        }
+                        const response = await put(`/api/productos/${id}/`, data)
+                        if (response) {
+                            console.log(response)
+                        }
+                    })
                 }
-                const response = await put(`/api/productos/${id}/`, data)
-                if (response) {
-                    console.log(response)
-                }
-            })
-        }
+            }
+        )
     }
 
     const handleParsePrecio = (value, object) => {
@@ -179,6 +187,7 @@ const ProductTable = ({ products = [], onAdd, onEdit, page=0, rowcount = 10, han
                         paginationModel={{ page, pageSize: 10 }}
                         paginationMode='server'
                         rowCount={rowcount}
+                        handlePaginationChange={(evt) => { console.log(evt) }}
 
                         onPageSizeChange={() => { }}
                         onPaginationMetaChange={handlePaginationChange}
@@ -187,12 +196,14 @@ const ProductTable = ({ products = [], onAdd, onEdit, page=0, rowcount = 10, han
                     />
                 </div>
             </div>
-            <Button variant="contained" color="secondary" onClick={handleSaveSelection} disabled={selectedRows.length === 0}>
-                Guardar visibilidad
-            </Button>
-            <Button variant="contained" color="secondary" onClick={handleDeleteSelection} disabled={selectedRows.length === 0}>
-                Eliminar seleccionados
-            </Button>
+            <div className=' d-flex justify-content-between'>
+                <Button variant="contained" color="secondary" onClick={handleSaveSelection} disabled={selectedRows.length === 0}>
+                    Guardar visibilidad
+                </Button>
+                <Button variant="contained" color="secondary" onClick={handleDeleteSelection} disabled={selectedRows.length === 0}>
+                    Eliminar seleccionados
+                </Button>
+            </div>
         </>
 
     );

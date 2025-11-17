@@ -3,10 +3,10 @@ from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, authentication
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 
 from django.contrib.auth import authenticate, login, logout
@@ -36,6 +36,38 @@ class ProductoViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductoSerializer
     permission_classes = [permissions.AllowAny] 
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        producto = self.get_object()
+
+        option_groups_data = request.data.get('option_groups', [])
+        
+        serializer = self.get_serializer(instance, data=request.data, partial=False)
+        
+        serializer.is_valid(raise_exception=True)
+
+        if option_groups_data:
+            for group_data in option_groups_data:
+                option_group = models.OptionGroup.objects.create(
+                    producto=producto,
+                )
+                for option_data in group_data.get('options'):
+                    print(option_data)
+                    models.Option.objects.create(
+                        descripcion=option_data['precio'],
+                        group = option_group,
+                    )
+                instance.grupos.add(option_group)
+
+        self.perform_update(serializer)
+        
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        # Guardamos los cambios del producto
+        serializer.save()
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = models.Categoria.objects.all().order_by("id")
@@ -175,6 +207,7 @@ def get_csrf(request):
 
 
 @csrf_exempt
+@ensure_csrf_cookie
 def login_view(request):
     data = json.loads(request.body)
     username = data.get('username')
@@ -200,39 +233,30 @@ def logout_view(request):
     return JsonResponse({'detail': 'Successfully logged out.'})
 
 
-@ensure_csrf_cookie
-def session_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'isAuthenticated': False})
-
-    return JsonResponse({'isAuthenticated': True})
-
-
-
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([])
 def jwt_logout(request):
-    print(1)
     try:
-        print(2)
         refresh_token = request.data.get('refresh', None)
         if not refresh_token:
-            return Response({'detail': 'Refresh token requerido.'}, status=HTTP_400_BAD_REQUEST)
-        
+            return Response({'detail': 'Refresh token requerido.'}, status=HTTP_400_BAD_REQUEST)        
         token = RefreshToken(refresh_token)
         token.blacklist()
-        print(3)
         return Response(HTTP_205_RESET_CONTENT)
     except Exception as e:
         return JsonResponse({'detail': 'Token inválido o en la lista negra'})
 
 
-
 @api_view(["POST"])
-@permission_classes([permissions.IsAuthenticated])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([authentication.TokenAuthentication])
 def create_post(request):
-    print(request.user)
-    data = serializers.UsuarioSerializer(request.user).data
+    data = None
+    if request.user.is_authenticated:
+        print(request.user)
+        data = serializers.UsuarioSerializer(request.user).data
     return Response({
-        'user': data
+        'user': data,
+        'message': 'success' if request.user.is_authenticated else 'No haz iniciado sesión'
     })

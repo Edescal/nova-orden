@@ -69,6 +69,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         serializer = OptionGroupSerializer(servicio.grupos.all(), many=True, context=self.context)
         return serializer.data
 
+
 class ProductoDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Producto

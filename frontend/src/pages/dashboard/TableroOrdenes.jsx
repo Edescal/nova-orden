@@ -27,11 +27,12 @@ export default function TableroOrdenes() {
 
     return (
         <div className="row g-4">
+            <h3 className="mb-3">Tablero de pedidos</h3>
 
             <div className="col-12 col-lg-4">
                 <div className="ca rd" style={cardStyle}>
                     <div className="card-body">
-                        <h5 className="card-title mb-3">Órdenes recibidas</h5>
+                        <h5 className="card-title mb-3">Pedidos recibidas</h5>
                         <div className="rounded">
                             {recibidas ? recibidas.map(orden => (
                                 <OrdenCard key={orden.id} orden={orden} onUpdate={() => fetchOrdenes()}
@@ -52,7 +53,7 @@ export default function TableroOrdenes() {
             <div className="col-12 col-lg-4">
                 <div className="ca rd" style={cardStyle}>
                     <div className="card-body">
-                        <h5 className="card-title mb-3">Órdenes en proceso</h5>
+                        <h5 className="card-title mb-3">Pedidos en proceso</h5>
                         <div className="rounded">
                             {enProceso ? enProceso.map(orden => (
                                 <OrdenCard key={orden.id} orden={orden} onUpdate={() => fetchOrdenes()}
@@ -77,7 +78,7 @@ export default function TableroOrdenes() {
             <div className="col-12 col-lg-4">
                 <div className="ca rd" style={cardStyle}>
                     <div className="card-body">
-                        <h5 className="card-title mb-3">Órdenes listas para entregar</h5>
+                        <h5 className="card-title mb-3">Pedidos listos para entregar</h5>
                         <div className="rounded">
                             {listas ? listas.map(orden => (
                                 <OrdenCard key={orden.id} orden={orden} onUpdate={() => fetchOrdenes()}

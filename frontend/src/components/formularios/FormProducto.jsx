@@ -95,12 +95,13 @@ export default function FormProducto({ producto = null, onSubmit = null, type = 
         }
 
         console.log('Recuperando información de grupos...')
+        // console.log(grupos.map(p => p.id))
         const producto = {
             id,
             nombre,
             descripcion,
             precio,
-            grupos,
+            'option_groups': grupos,
             categoria: categoria,
             visible: true,
             negocio: "3c02f6c8-b916-424e-9bd0-0cb1334b3de2",
@@ -118,10 +119,10 @@ export default function FormProducto({ producto = null, onSubmit = null, type = 
     const realizarTransacción = useEffectEvent(async (producto) => {
         const method = type === 'editar' ? put : type === 'crear' ? post : null
         if (!method) {
+            console.log('No method!')
             return
         }
         const URL = type === 'editar' ? `/api/productos/${id}/` : type === 'crear' ? `/api/productos/` : null
-
         const response = await method(URL, producto)
         if (response) {
             console.log(response)

@@ -15,22 +15,6 @@ export default function Dashboard({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const navigate = useNavigate()
 
-    useEffect(() => {
-        (async () => {
-            const session = await getSession()
-            console.log(session)
-            if (session.ok) {
-                const json = await session.json()
-                if (json) {
-                    if (!json.isAuthenticated) {
-                        // navigate('/dashboard')
-                    }
-                }
-            }
-        })()
-
-    }, [])
-
 
     const handleSubmit = useEffectEvent(async () => {
         const response = await auth.login(username, password)
@@ -43,7 +27,7 @@ export default function Dashboard({ children }) {
 
     const handleLogout = useEffectEvent(async () => {
         const response = await auth.logout()
-        if (response) {
+        if (!auth.user) {
             navigate('/login')
         }
     })

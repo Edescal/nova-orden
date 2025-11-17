@@ -2,16 +2,67 @@ import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { createContext, useContext, useMemo, useState } from 'react'
 
+const AxiosInstance = axios.create({
+    baseURL: import.meta.env.VITE_BASE_URL,
+    withCredentials: true,
+    withXSRFToken: true,
+})
+
+AxiosInstance.interceptors.request.use(
+    config => {
+        console.log('Interceptando request...')
+        const access = localStorage.getItem('access') ?? false        
+        if (access) {
+            config.headers['Authorization'] = `Bearer ${access}`
+        }
+        return config
+    },
+    error => {
+        console.error(`Request error::${error}`)
+        return Promise.reject(error)
+    }
+)
+
+AxiosInstance.interceptors.response.use(
+    res => {
+        console.log('Interceptando respuesta...')
+        return res
+    },
+    async error => {
+        if (error.response && error.response.status === 401) {
+            try {
+
+                const refreshRes = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/refresh/`, {
+                    refresh: localStorage.getItem("refresh") ?? null,
+                })
+                console.log(refreshRes)
+                const newToken = refreshRes.data.access_token;
+                const originalRequest = error.config;
+                originalRequest.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+                return await axios(originalRequest)
+
+            } catch (refreshError) {
+                console.log('Falló el intento de refresh')
+                return await Promise.reject(refreshError);
+            }
+        }
+        return await Promise.reject(error);
+
+    }
+)
+
+export default AxiosInstance
+
 const AuthContext = createContext()
 
 export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => localStorage.getItem('access') ?? null) 
+    const [access, setAccess] = useState(() => localStorage.getItem('access') ?? null)
 
     const login = async (username, password) => {
         try {
-            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/token/`, {
+            const res = await AxiosInstance.post(`${import.meta.env.VITE_BASE_URL}/api/token/`, {
                 'username': username,
                 'password': password,
             })
@@ -19,9 +70,9 @@ export const AuthProvider = ({ children }) => {
             if (res.status == 200) {
                 localStorage.setItem('access', res.data.access)
                 localStorage.setItem('refresh', res.data.refresh)
-                const userData = jwtDecode(res.data.access)
-                setUser(userData)
-                return userData
+                const accessToken = jwtDecode(res.data.access)
+                setAccess(accessToken)
+                return accessToken
             }
         } catch (error) {
             console.error(error);
@@ -39,17 +90,13 @@ export const AuthProvider = ({ children }) => {
                 return
             }
 
-            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/logout/`, {
+            const res = await AxiosInstance.post(`/api/logout/`, {
                 refresh: refresh,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${access}`
-                }
             })
 
             localStorage.removeItem('access')
             localStorage.removeItem('refresh')
-            setUser(null)
+            setAccess(null)
 
             if (res.status == 200) {
                 return res
@@ -68,27 +115,24 @@ export const AuthProvider = ({ children }) => {
         }
 
         try {
-            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/whoami/`, {}, {
-                headers: {
-                    Authorization: `Bearer ${access}`
-                }
-            })
+            const res = await AxiosInstance.post(`/api/whoami/`, {})
             if (res.status === 200) {
                 return res
             }
         } catch (error) {
-            console.error(error);
+            console.log('Error al intentar ver la sesión')
+            console.error(error.message);
         }
         return false
     }
-
+    
     const value = useMemo(() => ({
-        user,
+        user: access,
         login,
         logout,
         whoami,
 
-    }), [user])
+    }), [access])
 
 
     return (

@@ -13,6 +13,8 @@ import Success from './pages/Success'
 import Papelera from './pages/dashboard/Papelera'
 import OrdenesEntregadas from './pages/dashboard/OrdenesEntregadas'
 import GestionProductos from './pages/dashboard/GestionProductos'
+import Test from './pages/Test'
+import ProtectedRoute from './protected/ProtectedRoute'
 
 function App() {
 	return (
@@ -22,12 +24,23 @@ function App() {
 				<Route path='/menu' element={<Menu></Menu>} />
 				<Route path='/checkout' element={<ProductoCard />} />
 				<Route path='/success' element={<Success />} />
-				
 				<Route path='/login' element={<Login />} />
-				<Route path='/dashboard' element={<Dashboard />} />
-				<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
-				<Route path='/papelera' element={<Papelera />} />
-				<Route path='/productos' element={<GestionProductos />} />
+
+				<Route element={<ProtectedRoute />} >
+					<Route path='/dashboard' element={<Dashboard />} />
+				</Route>
+				<Route element={<ProtectedRoute />} >
+					<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
+				</Route>
+				<Route element={<ProtectedRoute />} >
+					<Route path='/productos' element={<GestionProductos />} />
+				</Route>
+				<Route element={<ProtectedRoute />} >
+					<Route path='/papelera' element={<Papelera />} />
+				</Route>
+				<Route element={<ProtectedRoute />} >
+					<Route path='/test' element={<Test />} />
+				</Route>
 			</Routes>
 		</>
 	)

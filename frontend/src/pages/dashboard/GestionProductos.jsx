@@ -63,16 +63,6 @@ export default function GestionProductos() {
 		dialog.current?.close()
 	}
 
-	const handlePaginationChange = (newPage) => {
-		console.log(newPage)
-		console.log(page)
-		setPage(newPage);
-		if (newPage > page && productos.next) {
-			fetchProductos(productos.next);
-		} else if (newPage < page && productos.previous) {
-			fetchProductos(productos.previous);
-		}
-	};
 
 	return (
 		<Template activeBtns={['productos']}>
