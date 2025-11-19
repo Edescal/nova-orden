@@ -2,6 +2,8 @@ import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
 import Template from './Template'
 import { get, patch } from '../../utils/apiUtils'
 import { useModal } from '../../context/ModalContext'
+import { Button, Card, CardActionArea, CardContent, Collapse } from '@mui/material'
+import { unixToDate } from '../../utils/unixToDate'
 
 export default function OrdenesEntregadas() {
     const [ordenes, setOrdenes] = useState([])
@@ -54,6 +56,7 @@ export default function OrdenesEntregadas() {
 function OrdenRow({ orden, onEstadoChange }) {
     const cardRef = useRef()
     const modal = useModal()
+    const [open, setOpen] = useState(false)
 
     const patchOrden = useEffectEvent(async (estado) => {
         if (!orden || !orden.id) return
@@ -81,55 +84,47 @@ function OrdenRow({ orden, onEstadoChange }) {
     }
 
     return (
-        <div ref={cardRef} className="card mb-3 shadow-sm overflow-hidden border-start-1 border-top-0 border-bottom-0 border-end-0 border-5 border-dark">
-            <div className="card-header bg-body-secondary d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 className="fw-bold mb-0">Orden #{orden.id}</h6>
-                    <small className="text-muted">Cliente: {orden.nombre_cliente}</small>
-                </div>
-            </div>
+        <>
+            <Card className="card shadow overflow-hidden border-start-1 border-top-0 border-bottom-0 border-end-0 border-5 border-dark">
+                <CardActionArea ref={cardRef} onClick={() => setOpen(!open)} className='p-3 px-4 d-flex flex-column align-items-stretch'>
+                    <h4 className="mb-2 text-muted">Orden #{orden.id}</h4>
+                    <h5 className="mb-1"><strong>Cliente:</strong> {orden.nombre_cliente}</h5>
+                    <h6 className="mb-1 text-muted">Fecha: {unixToDate(orden.fecha)}</h6>
+                    <CardContent className={`${open ? 'p-2' : ' py-0'}`} sx={{ transition: "200ms" }}>
+                        <Collapse in={open}>
 
-            <div className="card-body">
-                <table className="table table-borderless align-middle mb-0">
-                    <thead>
-                        <tr className="text-muted small">
-                            <th>Producto</th>
-                            <th className="text-center">Cant.</th>
-                            <th className="text-end">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orden.pedidos.map((item, index) => (
-                            <tr key={index} className="border-top">
-                                <td>
-                                    <div className="fw-semibold">{item.producto.nombre}</div>
-                                    <small className="text-muted">{item.producto.descripcion}</small>
-                                </td>
-                                <td className="text-center">
-                                    <span className="badge bg-dark">x{item.cantidad}</span>
-                                </td>
-                                <td className="text-end fw-bold">${item.subtotal}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                            <div className=" m-2 p-2 d-flex flex-column justify-content-between">
 
-                {orden.nota && (
-                    <div className="mt-3 p-2 border-start border-3 border-dark small bg-body-tertiary">
-                        <strong>Nota:</strong> {orden.nota}
-                    </div>
-                )}
-            </div>
+                                {orden.pedidos.map((pedido, index) => (
+                                    <div key={pedido.id} className={`d-flex gap-3 ${index < orden.pedidos.length - 1 ? 'mb-3' : ''}  `}>
+                                        <div className="flex-fill">
+                                            <div className="d-flex justify-content-between">
+                                                <strong className='fs-6'>{pedido.producto.nombre}</strong>
+                                                <span className="badge bg-dark">x{pedido.cantidad}</span>
+                                            </div>
+                                            {pedido.opciones.length > 0 && (
+                                                <div className="mt-1">
+                                                    {pedido.opciones.map((opcion) => (
+                                                        <small key={opcion.id} className="d-block text-muted">
+                                                            • {opcion.descripcion}
+                                                            {parseFloat(opcion.precio) > 0 && ` (+${opcion.precio})`}
+                                                        </small>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
 
+                            </div>
+                            <div className='d-flex justify-content-end' >
+                                <Button component="div" variant="contained" color='success' onClick={(evt) => { evt.stopPropagation(); handleModal(2); }} >Devolver orden</Button>
+                            </div>
+                        </Collapse>
+                    </CardContent>
+                </CardActionArea>
 
-            <div className="card-footer bg-white d-flex justify-content-end gap-2">
-                <button
-                    className="btn btn-success fw-semibold"
-                    onClick={() => handleModal(2)}
-                >
-                    Devolver al tablero
-                </button>
-            </div>
-        </div>
+            </Card>
+        </>
     );
 }

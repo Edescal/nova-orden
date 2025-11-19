@@ -15,6 +15,7 @@ import OrdenesEntregadas from './pages/dashboard/OrdenesEntregadas'
 import GestionProductos from './pages/dashboard/GestionProductos'
 import Test from './pages/Test'
 import ProtectedRoute from './protected/ProtectedRoute'
+import Register from './pages/Register'
 
 function App() {
 	return (
@@ -25,6 +26,7 @@ function App() {
 				<Route path='/checkout' element={<ProductoCard />} />
 				<Route path='/success' element={<Success />} />
 				<Route path='/login' element={<Login />} />
+				<Route path='/register' element={<Register />} />
 
 				<Route element={<ProtectedRoute />} >
 					<Route path='/dashboard' element={<Dashboard />} />

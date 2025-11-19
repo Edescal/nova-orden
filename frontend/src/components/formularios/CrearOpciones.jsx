@@ -4,24 +4,42 @@ import { PlusIcon } from '../../assets/PlusIcon'
 
 //onZeroItems lo elimina en el padre 
 export default function CrearOpciones({ initialData = null, onZeroItems = null, onChangeData = null }) {
-    const [nombre, setNombre] = useState('Nombre del grupo')
-
     const [id, setId] = useState(-1)
+    const [nombre, setNombre] = useState('Nombre del grupo')
     const [productoId, setProductoId] = useState(-1)
     const [opciones, setOpciones] = useState([{
-        id: "campo_1",
+        id: -1,
         descripcion: "Opción extra 1",
         precio: 0,
     }])
 
     useEffect(() => {
+        if (initialData === null) {
+            return
+        }
+        setId(initialData.id)
+        setNombre(initialData.descripcion ?? 'default')
+        setProductoId(initialData.producto)
+        if (initialData.opciones) {
+            setOpciones(initialData.opciones)
+        }
+    }, [])
+
+    useEffect(() => {
         onChangeData?.(generarDatos())
     }, [nombre, id, productoId, opciones])
+
+    useEffect(() => {
+        if (opciones.length === 0 && onZeroItems) {
+            onZeroItems()
+        }
+    }, [opciones])
+
 
     const addItem = () => {
         setOpciones(
             [...opciones, {
-                id: `campo_${opciones.length + 1}`,
+                id: null,
                 descripcion: `Opción extra ${opciones.length + 1}`,
                 precio: 0,
             }]
@@ -30,7 +48,6 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null, 
     const removeItem = ({ id }) => {
         setOpciones(opciones.filter(opcion => opcion.id !== id))
     }
-
     const updateOption = (id, data) => {
         setOpciones(prev => prev.map(opcion =>
             opcion.id === id ? {
@@ -42,11 +59,11 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null, 
     }
 
     const generarDatos = () => {
-        const objeto = {
+        const grupo = {
             id: id,
-            nombre: nombre,
+            descripcion: nombre,
             producto: productoId,
-            options: []
+            opciones: []
         }
         opciones.forEach(element => {
             const opcion = {
@@ -54,27 +71,10 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null, 
                 descripcion: element.descripcion,
                 precio: element.precio,
             }
-            objeto.options.push(opcion)
+            grupo.opciones.push(opcion)
         });
-        return objeto
+        return grupo
     }
-
-    useEffect(() => {
-        if (initialData === null) return
-        setId(initialData.id)
-        setNombre(initialData.descripcion ?? 'default')
-        setProductoId(initialData.producto)
-        if (initialData.options) {
-            setOpciones(initialData.options)
-        }
-    }, [initialData])
-
-    useEffect(() => {
-        if (opciones.length === 0 && onZeroItems) {
-            onZeroItems()
-        }
-    }, [opciones])
-
 
     return (
         <div className='card p-3 my-2'>
@@ -102,7 +102,6 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null, 
                         backgroundColor: 'black',
                         color: 'white',
                         fontWeight: 'bold',
-                        fontSize: 12,
                         flex: 2,
                         '&:hover': {
                             backgroundColor: '#333'
@@ -164,7 +163,6 @@ export default function CrearOpciones({ initialData = null, onZeroItems = null, 
                     );
                 }) : null}
             </fieldset>
-            {/* <button type='button' className='btn btn-danger' onClick={submit}>Test submit</button> */}
         </div>
     )
 }

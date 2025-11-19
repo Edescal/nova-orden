@@ -82,7 +82,7 @@ export default function Menu() {
                 <AgregarProduto ref={detalleProducto} />
 
                 <div className='container-fluid g-0 p-0 m-0'>
-                    <div className='row py-3 justify-content-center mb-0'>
+                    <div className='row py-3 justify-content-center mb-0 mx-0'>
                         <SearchBar func={searchProductos} />
                         <Categorias />
                     </div>

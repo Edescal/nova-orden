@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import AxiosInstance, { useAuth } from '../context/AuthContext'
 import FormProducto from '../components/formularios/FormProducto'
 import { Dialog } from '@mui/material'
 
 export default function Test() {
-
+    const [producto, setProducto] = useState(null)
     const auth = useAuth()
 
     const handleWhoAmI = () => {
@@ -16,23 +16,37 @@ export default function Test() {
         })()
     }
 
-    const handleSubmit = async ()=>{
-        const res = await AxiosInstance.post('/api/productos', {
+    useEffect(() => {
+        (async () => {
+            const res = await AxiosInstance.get('/api/productos/1/')
+            if (res) {
+                console.log(res)
+                setProducto(res.data)
+            }
+        })()
+    }, [])
 
-        })
+    const handleSubmit = async (data) => {
+        if (producto) {
+            console.log(producto)
+            const res = await AxiosInstance.put(`api/productos/${producto.id}/`, data)
+            console.log(res)
+            return
+
+        }
+        const res = await AxiosInstance.post('/api/productos/', data)
         if (res) {
             console.log(res)
         }
-
     }
 
     return (
         <div>
             <button onClick={handleWhoAmI}>PUTAAA</button>
             <Dialog open>
-            <FormProducto onSubmit={handleSubmit} type='crear'>
+                <FormProducto producto={producto} onSubmit={handleSubmit}>
 
-            </FormProducto>
+                </FormProducto>
             </Dialog>
         </div>
     )

@@ -83,9 +83,9 @@ class OptionGroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ["id"]
 
-    options = serializers.SerializerMethodField()
+    opciones = serializers.SerializerMethodField()
 
-    def get_options(self, optGrp: models.OptionGroup):
+    def get_opciones(self, optGrp: models.OptionGroup):
         serializer = OptionSerializer(optGrp.opciones.all(), many=True, context=self.context)
         return serializer.data
 

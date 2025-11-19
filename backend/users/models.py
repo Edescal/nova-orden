@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator, MaxLengthValidator, MinLengthValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -61,7 +61,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         auto_now_add=True
     )
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     USER_ID_FIELD = 'uuid'
     USERNAME_FIELD = 'username'
@@ -200,8 +200,11 @@ class Producto(models.Model):
     )
     
     def clean(self):
-        if self.precio < 0:
-            raise ValidationError('El precio de un producto no puede ser negativo')
+        MinLengthValidator(1, message='El nombre del producto no puede estar vacío')(self.nombre)
+        MaxLengthValidator(64, message='El nombre del producto es demasiado largo')(self.nombre)
+        MinLengthValidator(1, message='La descripción del producto no puede estar vacía')(self.descripcion)
+        MaxLengthValidator(128, message='La descripción del producto es demasiado larga')(self.descripcion)
+        MinValueValidator(0, message='El precio del producto no puede ser negativo')(self.precio)
         return super().clean()
 
     def __str__(self):
@@ -216,6 +219,10 @@ class OptionGroup(models.Model):
         null=False,
         blank=False,
         max_length=40,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(40)
+        ]
     )
     producto = models.ForeignKey(
         Producto,
@@ -223,6 +230,13 @@ class OptionGroup(models.Model):
         on_delete=models.CASCADE,
         related_name='grupos',
     )
+
+    def save(self, *args, **kwargs):
+        if not self.producto:
+            raise ValidationError('El grupo de opciones debe pertenecer a un producto')
+        MinValueValidator(1, message='El grupo de opciones necesita una descripción')(len(self.descripcion))
+        MaxValueValidator(20, message='La descripción del grupo de opciones es demasiado larga')(len(self.descripcion))
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.descripcion
@@ -236,6 +250,10 @@ class Option(models.Model):
         null=False,
         blank=False,
         max_length=40,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(40)
+        ]
     )
     precio = models.DecimalField(
         default=0,
@@ -248,6 +266,13 @@ class Option(models.Model):
         on_delete=models.CASCADE,
         related_name='opciones',
     )
+
+    def save(self, *args, **kwargs):
+        if not self.group:
+            raise ValidationError('Las opciones deben pertenecer a un grupo de opciones')
+        MinValueValidator(1, message='No puede haber descripciones de opción vacías')(len(self.descripcion))
+        MaxValueValidator(40, message='La descripción de la opción es demasiado larga')(len(self.descripcion))
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.descripcion} { f'(${self.precio})' if self.precio > 0 else f'(-${abs(self.precio)})' if self.precio < 0 else '' }'

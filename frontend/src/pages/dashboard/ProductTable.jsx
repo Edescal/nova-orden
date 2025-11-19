@@ -143,6 +143,7 @@ const ProductTable = ({ products = [], onAdd, onEdit, page = 0, rowcount = 10, h
             sortable: true,
             width: 150,
             valueGetter: (value) => {
+                if (categorias.length === 0) return value.value
                 const filter = categorias.find(c => c.id === value)
                 return filter.nombre ?? value
             },

@@ -1,29 +1,18 @@
 from django.db import transaction
-from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT
 from rest_framework import viewsets, permissions, authentication
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-
-
-from django.contrib.auth import authenticate, login, logout
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate, login
 from django.http import JsonResponse, HttpResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from django.views.decorators.http import require_POST
-from django.core.handlers.wsgi import WSGIRequest
-
-
-
 from users import models
 from . import serializers
 import json
-
-
 
 class NegocioViewSet(viewsets.ModelViewSet):
     queryset = models.Negocio.objects.all().order_by("uuid")
@@ -37,37 +26,118 @@ class ProductoViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny] 
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        producto = self.get_object()
-
-        option_groups_data = request.data.get('option_groups', [])
-        
-        serializer = self.get_serializer(instance, data=request.data, partial=False)
-        
-        serializer.is_valid(raise_exception=True)
-
-        if option_groups_data:
-            for group_data in option_groups_data:
-                option_group = models.OptionGroup.objects.create(
-                    producto=producto,
+    def create(self, request, *args, **kwargs):
+        with transaction.atomic():
+            try:
+                producto = models.Producto.objects.create(
+                    nombre= request.data.get('nombre', ''),
+                    descripcion= request.data.get('descripcion', ''),
+                    precio= request.data.get('precio', 0),
+                    categoria_id= request.data.get('categoria', None),
+                    negocio_id= request.data.get('negocio', None),
+                    visible= bool(request.data.get('visible', True)),
+                    imagen= request.FILES.get('imagen', None),
                 )
-                for option_data in group_data.get('options'):
-                    print(option_data)
-                    models.Option.objects.create(
-                        descripcion=option_data['precio'],
-                        group = option_group,
+
+                option_groups_data = request.POST.get('option_groups', [])                
+                if option_groups_data:
+                    for group_data in json.loads(option_groups_data):
+                        # crear el grupo
+                        descripcion = group_data.get('descripcion', '')
+                        option_group = models.OptionGroup.objects.create(
+                            producto= producto,
+                            descripcion= descripcion,
+                        )
+
+                        for option_data in group_data.get('options', []):
+                            # crear las opciones
+                            option = models.Option.objects.create(
+                                descripcion = option_data.get('descripcion', ''),
+                                precio = option_data.get('precio', 0),
+                                group = option_group,
+                            )
+                            option_group.opciones.add(option)
+
+                        producto.grupos.add(option_group)
+
+                serialized_product = self.get_serializer(producto).data
+                return Response(
+                    data=serialized_product,
+                    status= HTTP_201_CREATED
+                )
+            except Exception as e:
+                transaction.set_rollback(True)
+                print(f'[API Error]: {e}')
+        return Response('No se creó el producto')
+
+    def update(self, request, *args, **kwargs):
+        with transaction.atomic():
+            try:
+                producto = self.get_object() #este es el real
+                updated_product, _ = models.Producto.objects.update_or_create(
+                    id=producto.id,
+                    defaults={
+                        'nombre': request.data.get('nombre', producto.nombre),
+                        'descripcion': request.data.get('descripcion', producto.descripcion),
+                        'precio': float(request.data.get('precio', producto.precio)),
+                        'categoria_id': int(request.data.get('categoria', producto.categoria.id)),
+                        'negocio_id': request.data.get('negocio', producto.negocio.uuid),
+                        'visible': request.data.get('visible', producto.visible) in [True, 'true', 'True', '1', 1],
+                        'imagen': request.FILES.get('imagen', producto.imagen),
+                    }
+                )
+
+                # ir guardando los ids de grupos actualizados para borrar los eliminados
+                retrieved_ids = []
+                option_groups_data = json.loads(request.data.get('option_groups', []))
+                for grupo in option_groups_data:
+                    option_group, _ = models.OptionGroup.objects.update_or_create(
+                        id=grupo.get('id', None),
+                        defaults={
+                            'descripcion': grupo.get('descripcion', ''),
+                            'producto': updated_product,
+                        }
                     )
-                instance.grupos.add(option_group)
+                    retrieved_ids.append(option_group.id)
 
-        self.perform_update(serializer)
+                    # guardar los ids de opciones para borrar las eliminadas
+                    opciones_ids = []
+                    for opcion in grupo.get('opciones', []):
+                        id = opcion.get('id', None)
+                        descripcion = opcion.get('descripcion', '')
+                        precio = float(opcion.get('precio', 0))
+                        opcion, _ = models.Option.objects.update_or_create(
+                            id=int(id) if id else None,
+                            defaults={
+                                'descripcion': descripcion,
+                                'precio': precio,
+                                'group': option_group,
+                            }
+                        )
+                        opciones_ids.append(opcion.id)
+
+                    opciones_eliminadas = option_group.opciones.exclude(id__in=opciones_ids)
+                    for opcion in opciones_eliminadas:
+                        opcion.delete()
+
+                updated_product.clean()
+                
+                grupos_eliminados = producto.grupos.exclude(id__in=retrieved_ids)
+                for grupo in grupos_eliminados:
+                    grupo.delete()
+
+                data = self.get_serializer(updated_product).data
+                transaction.set_rollback(False)
+                return Response(
+                    data=data,
+                    status= HTTP_201_CREATED
+                )
+            except Exception as e:
+                transaction.set_rollback(True)
+                print(f'[API Error]: {e}')
+
+        return Response('No se pudo actualizar el producto')
         
-        return Response(serializer.data)
-
-    def perform_update(self, serializer):
-        # Guardamos los cambios del producto
-        serializer.save()
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = models.Categoria.objects.all().order_by("id")
@@ -175,29 +245,6 @@ def create_product_wrapper(data):
         wrapper.opciones.add(option)
     return wrapper
 
-@api_view(['GET'])
-def ultimas_ordenes(request):
-    ordenes = models.Orden.objects.filter(estado=2).order_by('-fecha_creacion')[5:]
-    serializer = serializers.OrdenSerializer(ordenes, many=True)
-    return serializer.data
-
-"""
-VISTAS PARA API DE AUTENTICACIÓN
-"""
-
-
-@csrf_exempt
-def api_login(request:WSGIRequest):
-    if request.method == 'POST':
-        body = json.loads(request.body.decode('utf-8'))
-        username = body.get('username', None)
-        print(username)
-
-        return HttpResponse({
-            'success': 'OK',
-            'status': 200,
-        })
-
 
 @csrf_exempt
 def get_csrf(request):
@@ -223,15 +270,42 @@ def login_view(request):
     return JsonResponse({'message': 'Successfully logged in.'}, status=200)
 
 
-@csrf_exempt
-def logout_view(request):
-    print(request)
-    if not request.user.is_authenticated:
-        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
+@api_view(['POST'])
+def register_view(request):
+    data = json.loads(request.body)
+    email = data.get('email', None)
+    nombre = data.get('nombre', None)
+    apellidos = data.get('apellidos', None)
+    username = data.get('username', None)
+    password = data.get('password', None)
+    confirm_password = data.get('confirmPassword', '')
 
-    logout(request)
-    return JsonResponse({'detail': 'Successfully logged out.'})
-
+    if username is None or password is None:
+        return Response({'message': 'Please provide username and password.'}, status=400)
+    elif password != confirm_password:
+        return Response({'message': 'Las contraseñas no coinciden.'}, status=400)
+    elif not nombre or not apellidos:
+        return Response({'message': 'Por favor ingresa tu nombre y apellidos.'}, status=400)    
+    elif not email:
+        return Response({'message': 'Por favor ingresa tu correo electrónico.'}, status=400)
+    elif models.Usuario.objects.filter(username=username).exists():
+        return JsonResponse({'errors': {'username': 'El nombre de usuario ya existe.'}}, status=400)
+    elif models.Usuario.objects.filter(email=email).exists():
+        return JsonResponse({'errors': {'email': 'El correo ya está registrado.'}}, status=400)
+    
+    with transaction.atomic():
+        user = models.Usuario.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+            nombre=nombre,
+            apellidos=apellidos
+        )
+        serialized = serializers.UsuarioSerializer(user).data
+        transaction.set_rollback(True)
+        return Response({'message': 'User registered successfully.', 'user': serialized}, status=201)
+    
+    return Response({'message': 'User registered successfully.'}, status=201)
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -260,3 +334,4 @@ def create_post(request):
         'user': data,
         'message': 'success' if request.user.is_authenticated else 'No haz iniciado sesión'
     })
+

@@ -1,9 +1,10 @@
-import { Box, Button, ButtonBase } from '@mui/material'
+import { Box, Button, ButtonBase, Card, CardActionArea, CardContent, CardHeader, Collapse } from '@mui/material'
 
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { get, patch } from '../../utils/apiUtils';
 import { useModal } from '../../context/ModalContext';
 import Template from './Template';
+import { unixToDate } from '../../utils/unixToDate';
 
 export default function Papelera() {
     const [ordenesEliminadas, setCanceladas] = useState([])
@@ -30,12 +31,11 @@ export default function Papelera() {
         <Template activeBtns={['papelera']}>
             <div className="container my-4">
                 <h3 className="mb-3">Historial de Órdenes Eliminadas</h3>
-
                 <div className="row">
                     <div className="col-12 col-lg-12">
                         {ordenesEliminadas.length > 0 ? (
                             ordenesEliminadas.map(orden => (
-                                <div key={orden.id} className="col-12 col-md-6 col-lg-12">
+                                <div key={orden.id} className="col-12 col-md-6 col-lg-12 mb-3">
                                     <OrdenEliminadaCard
                                         orden={orden}
                                         onRestore={null}
@@ -52,17 +52,14 @@ export default function Papelera() {
                         )}
                     </div>
                 </div>
-
             </div>
-
         </Template>
-
     )
 }
 
 const OrdenEliminadaCard = ({ orden, onRestore, onDeletePermanent }) => {
     const modal = useModal()
-
+    const [open, setOpen] = useState(false)
     const cardRef = useRef()
 
     const patchOrden = useEffectEvent(async () => {
@@ -79,7 +76,8 @@ const OrdenEliminadaCard = ({ orden, onRestore, onDeletePermanent }) => {
         }
     })
 
-    const onRestaurar = () => {
+    const onRestaurar = (evt) => {
+        evt.stopPropagation()
         modal.confirm(
             <div className="text-center">
                 <p className="mb-3">¿Quieres actualizar el <strong>estado</strong> de la orden?</p>
@@ -88,38 +86,50 @@ const OrdenEliminadaCard = ({ orden, onRestore, onDeletePermanent }) => {
         )
     }
 
+    const cardActionHandler = (evt) => {
+        setOpen(!open)
+    }
+
     return (
-        <div ref={cardRef} className="card mb-3 shadow overflow-hidden border-start-1 border-top-0 border-bottom-0 border-end-0 border-5 border-dark">
-            <div className="card-body">
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                    <div className='w-100'>
-                        <h6 className="card-subtitle mb-2 text-muted">Orden #{orden.id}</h6>
-                        <p className="card-text mb-1"><strong>Cliente:</strong> {orden.nombre_cliente}</p>
-                        {orden.pedidos.map(item => (
-                            <div className='m-2 p-2 d-flex flex-row justify-content-between card bg-body-secondary  shadow-sm border-start-1 border-top-0 border-bottom-0 border-end-0 border-5 border-black'>
-                                <div className='d-flex flex-column'>
-                                    <span className="mb-1 fw-bold">{item.producto.nombre}</span>
-                                    <small className="text-muted mb-2 small">{item.producto.descripcion}</small>
-                                </div>
-                                <div className="text-end ms-3">
-                                    <small className="badge bg-dark mb-1">x{item.cantidad}</small>
-                                    <div className="fw-bold">${item.subtotal}</div>
+        <Card className="card shadow overflow-hidden border-start-1 border-top-0 border-bottom-0 border-end-0 border-5 border-dark">
+            <CardActionArea ref={cardRef} onClick={cardActionHandler} className='p-3 px-4 d-flex flex-column align-items-stretch'>
+                <h4 className="mb-2 text-muted">Orden #{orden.id}</h4>
+                <h5 className="mb-1"><strong>Cliente:</strong> {orden.nombre_cliente}</h5>
+                <h6 className="mb-1 text-muted">Fecha: {unixToDate(orden.fecha)}</h6>
+                <CardContent className={`${open ? 'p-2' : ' py-0'}`} sx={{ transition: "200ms" }}>
+                    <Collapse in={open}>
 
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                        <div className=" m-2 p-2 d-flex flex-column justify-content-between">
 
-                <div className="d-flex justify-content-end gap-2 mt-3">
-                    <button
-                        className="btn btn-primary text-white fw-semibold"
-                        onClick={() => onRestaurar()}
-                    >
-                        Restaurar
-                    </button>
-                </div>
-            </div>
-        </div>
+                            {orden.pedidos.map((pedido, index) => (
+                                <div key={pedido.id} className={`d-flex gap-3 ${index < orden.pedidos.length - 1 ? 'mb-3' : ''}  `}>
+                                    <div className="flex-fill">
+                                        <div className="d-flex justify-content-between">
+                                            <strong className='fs-6'>{pedido.producto.nombre}</strong>
+                                            <span className="badge bg-dark">x{pedido.cantidad}</span>
+                                        </div>
+                                        {pedido.opciones.length > 0 && (
+                                            <div className="mt-1">
+                                                {pedido.opciones.map((opcion) => (
+                                                    <small key={opcion.id} className="d-block text-muted">
+                                                        • {opcion.descripcion}
+                                                        {parseFloat(opcion.precio) > 0 && ` (+${opcion.precio})`}
+                                                    </small>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+
+                        </div>
+                        <div className='d-flex justify-content-end' >
+                            <Button component="div" variant="contained" color='error' onClick={onRestaurar} >Restaurar orden</Button>
+                        </div>
+                    </Collapse>
+                </CardContent>
+            </CardActionArea>
+
+        </Card>
     );
 };

@@ -117,7 +117,7 @@ export default function Template({ children, activeBtns = [] }) {
                         </div>
                     </header>
 
-                    <main className="overflow-auto p-4 bg-light container-fluid">
+                    <main className="overflow-auto p-4 container-fluid">
                         {children}
                     </main>
                 </div>

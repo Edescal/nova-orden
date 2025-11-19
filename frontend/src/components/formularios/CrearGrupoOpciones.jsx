@@ -5,13 +5,7 @@ import CrearOpciones from './CrearOpciones'
 
 /// Este componeente triggerea el submit de FormProducto
 export default function CrearGrupoOpciones({ initialData = null, onZeroItems = null, onSubmit = null }) {
-    const defaultValue = [{
-        id: "grupo_1",
-        descripcion: "Grupo 1",
-        producto: -1,
-    }]
-
-    const [grupos, setGrupos] = useState([...defaultValue])
+    const [grupos, setGrupos] = useState([])
     useEffect(() => {
         if (!grupos) return
         if (grupos.length === 0 && onZeroItems) {
@@ -27,7 +21,7 @@ export default function CrearGrupoOpciones({ initialData = null, onZeroItems = n
     const addItem = () => {
         setGrupos(
             [...grupos, {
-                id: `grupo_${grupos.length + 1}`,
+                id: -1,
                 descripcion: `Grupo ${grupos.length + 1}`,
                 producto: -1,
             }]

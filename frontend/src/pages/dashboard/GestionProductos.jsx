@@ -4,15 +4,17 @@ import { get } from '../../utils/apiUtils'
 import ProductTable from './ProductTable'
 import FormProducto from '../../components/formularios/FormProducto'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography, Paper } from '@mui/material'
+import AxiosInstance from '../../context/AuthContext'
 
 export default function GestionProductos() {
+	const formRef = useRef()
 	const [type, setType] = useState(false)
 	const [open, setOpen] = useState(false)
 	const dialog = useRef()
 	const [productos, setProductos] = useState([])
 	const [page, setPage] = useState(0)
 	const [editProducto, setEditProducto] = useState(null)
-	
+
 	useEffect(() => {
 		fetchProductos()
 	}, [])
@@ -56,7 +58,23 @@ export default function GestionProductos() {
 		dialog.current?.showModal()
 	}
 
-	const handleSubmitProducto = (productos) => {
+	const handleSubmitProducto = async (formData) => {
+		if (editProducto) {
+			console.log('Producto editado:')
+			console.log(Object.fromEntries(formData))
+			const response = await AxiosInstance.put(`api/productos/${editProducto.id}/`, formData)
+			if (response) {
+				console.log(response)
+			}
+
+		} else {
+			console.log('Producto creado:')
+			const response = await AxiosInstance.post('/api/productos/', formData)
+			if (response) {
+				console.log(response)
+			}
+		}
+
 		fetchProductos()
 		setOpen(false)
 		console.log('Actualizando la vista de productos')
@@ -67,20 +85,20 @@ export default function GestionProductos() {
 	return (
 		<Template activeBtns={['productos']}>
 			<Box sx={{ p: 4 }}>
-				<Box sx={{ 
-					display: 'flex', 
-					justifyContent: 'space-between', 
-					alignItems: 'center', 
-					mb: 4 
+				<Box sx={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					mb: 4
 				}}>
 					<Typography variant="h4" sx={{ fontWeight: 600, color: '#1976d2' }}>
 						Gestión de Productos
 					</Typography>
-					<Button 
-						variant="contained" 
-						onClick={handleCreateProducto} 
+					<Button
+						variant="contained"
+						onClick={handleCreateProducto}
 						color="secondary"
-						sx={{ 
+						sx={{
 							borderRadius: 2,
 							px: 3,
 							py: 1.5,
@@ -98,17 +116,17 @@ export default function GestionProductos() {
 				</Box>
 
 				<Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-					<ProductTable 
-						products={productos.results} 
-						onEdit={handleEditProducto} 
-						rowcount={productos.count} 
-						page={page} 
+					<ProductTable
+						products={productos.results}
+						onEdit={handleEditProducto}
+						rowcount={productos.count}
+						page={page}
 					/>
 				</Paper>
 
-				<Box sx={{ 
-					display: 'flex', 
-					justifyContent: 'center', 
+				<Box sx={{
+					display: 'flex',
+					justifyContent: 'center',
 					gap: 2,
 					mt: 3
 				}}>
@@ -117,7 +135,7 @@ export default function GestionProductos() {
 						color="primary"
 						onClick={() => cambiarPagina(page - 1)}
 						disabled={!productos.previous}
-						sx={{ 
+						sx={{
 							borderRadius: 2,
 							px: 4,
 							py: 1,
@@ -133,7 +151,7 @@ export default function GestionProductos() {
 						color="primary"
 						onClick={() => cambiarPagina(page + 1)}
 						disabled={!productos.next}
-						sx={{ 
+						sx={{
 							borderRadius: 2,
 							px: 4,
 							py: 1,
@@ -146,45 +164,26 @@ export default function GestionProductos() {
 				</Box>
 			</Box>
 
-			<Dialog 
-				open={open} 
-				onClose={() => { setOpen(false); setType('editar') }}
-				maxWidth="sm"
-				fullWidth
-			>
-				<DialogTitle sx={{ 
-					bgcolor: '#f5f5f5', 
+			<Dialog open={open} onClose={() => { setOpen(false); setType('editar') }} maxWidth="sm" fullWidth >
+				<DialogTitle sx={{
 					fontWeight: 600,
-					fontSize: '1.25rem'
+					fontSize: '1.7rem',
+					borderBottom: '1px solid #e0e0e0',
 				}}>
-					{type === 'crear' ? 'Agregar un nuevo producto' : 'Editar producto existente'}
+					{editProducto ? 'Editar producto existente' : 'Agregar un nuevo producto'}
 				</DialogTitle>
-				<DialogContent sx={{ mt: 2 }}>
-					<FormProducto 
-						producto={editProducto} 
-						onSubmit={handleSubmitProducto} 
-						type={type}
-					/>
+				<DialogContent>
+					<FormProducto ref={formRef} producto={editProducto} onSubmit={handleSubmitProducto} type={type} />
 				</DialogContent>
-				<DialogActions sx={{ p: 2.5, bgcolor: '#fafafa' }}>
-					<Button 
-						onClick={() => { setOpen(false); setType('editar') }}
-						sx={{ 
-							textTransform: 'none',
-							color: '#666'
-						}}
-					>
+				<DialogActions sx={{
+					p: 2.5,
+					bgcolor: '#fafafa',
+					borderTop: '1px solid #e0e0e0',
+				}}>
+					<Button onClick={() => { formRef.current?.reset(); setOpen(false) }} variant="contained" color='secondary' className='fw-semibold'>
 						Cerrar
 					</Button>
-					<Button 
-						type="submit" 
-						form="subscription-form"
-						variant="contained"
-						sx={{ 
-							textTransform: 'none',
-							px: 3
-						}}
-					>
+					<Button onClick={() => formRef.current?.submit()} type="submit" variant="contained" color='primary' className='fw-semibold'>
 						Guardar
 					</Button>
 				</DialogActions>
