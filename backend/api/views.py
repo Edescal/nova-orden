@@ -12,7 +12,7 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from users import models
 from . import serializers
-import json
+import json, uuid
 
 class NegocioViewSet(viewsets.ModelViewSet):
     queryset = models.Negocio.objects.all().order_by("uuid")
@@ -210,6 +210,9 @@ class ProductoWrapperViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
     def create(self, request: Request, *args, **kwargs):
+        """Esta vista serializa un Detaller de 
+        Producto y lo valida, pero no lo 
+        guarda en la base de datos"""
         with transaction.atomic():
             try:
                 opciones = []
@@ -221,15 +224,17 @@ class ProductoWrapperViewSet(viewsets.ModelViewSet):
                 for opt_id in request.data.get('options', {}):
                     option = models.Option.objects.get(id = opt_id.get('id', None))
                     opciones.append(serializers.OptionSerializer(option).data)
+                # generar un id temporal                
                 serialized_wrapper = self.get_serializer(wrapper).data
                 serialized_wrapper['opciones'] = opciones
+                serialized_wrapper['id'] = str(uuid.uuid4())
+
                 return Response(
                     data=serialized_wrapper,
                     status= HTTP_201_CREATED
                 )
             except Exception as e:
                 print(f'Error: {e}')
-                transaction.set_rollback(True)
             finally:
                 transaction.set_rollback(True)
         return Response(status=HTTP_400_BAD_REQUEST)

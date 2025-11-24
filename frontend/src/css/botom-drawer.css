@@ -23,6 +23,7 @@
     pointer-events: none;
     transition: opacity 0.3s ease;
     bottom: 0;
+    top: auto;
     display: flex;
     justify-content: center;
     z-index: 1050;
@@ -31,26 +32,24 @@
 .drawer.open {
     opacity: 1;
     pointer-events: auto;
+    position: sticky;
 }
 
-/* Fondo oscuro detrás - mejorado */
 .drawer-backdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
     transition: backdrop-filter 0.3s ease;
 }
 
-/* Panel inferior - mejorado */
 .drawer-panel.bottom {
     position: absolute;
     bottom: 0;
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
-    min-height: 50vh;
-    height: 75%;
+    min-height: 70vh;
+    height: 70vh;
     background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
     border-radius: 24px 24px 0 0;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.2);

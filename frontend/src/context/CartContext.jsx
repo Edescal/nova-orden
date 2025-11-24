@@ -1,6 +1,7 @@
 import { act, createContext, useCallback, useContext, useMemo, useReducer, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { get, post } from '../utils/apiUtils'
+import { Snackbar } from '@mui/material'
 
 
 export const CartContext = createContext([])
@@ -66,7 +67,7 @@ export const CartProvider = ({ children }) => {
             type: 'reset',
             data: producto
         }), [])
-    const createOrder = useCallback(async (nombreCliente="SDS") => {
+    const createOrder = useCallback(async (nombreCliente = "SDS") => {
         console.log(`Creando orden para: ${nombreCliente}`)
         if (isBusy) {
             console.warn('El carrito está ocupado...')
@@ -78,7 +79,7 @@ export const CartProvider = ({ children }) => {
                 fecha: new Date().getTime(),
                 negocio: "f32feeea-7313-4115-bdb9-fb65a60f0b64",
                 nombre_cliente: nombreCliente,
-                productos: cart,
+                productos: cart.map(producto => ({ ...producto, id: null })),
             }
             const resultado = await post('/api/ordenes/', body)
             if (resultado) {
@@ -128,6 +129,11 @@ export const CartProvider = ({ children }) => {
     return (
         <CartContext value={value} >
             {children}
+            <Snackbar
+
+            >
+
+            </Snackbar>
         </CartContext>
     )
 }

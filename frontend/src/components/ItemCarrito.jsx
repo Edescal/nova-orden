@@ -34,8 +34,8 @@ export default function ItemCarrito() {
         <>
             {
                 carrito.cart.length > 0 ?
-                    carrito.cart.map(wrapper => (
-                        <ProductoCarrito key={wrapper.id} wrapper={wrapper} onDelete={() => callModal(wrapper)}></ProductoCarrito>
+                    carrito.cart.map((wrapper, index) => (
+                        <ProductoCarrito key={index} wrapper={wrapper} onDelete={() => callModal(wrapper)}></ProductoCarrito>
                     )) :
                     <div className='p-3 d-flex flex-column align-items-center justify-content-center h-100'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="4em" height="4em" viewBox="0 0 24 24"><path fill="none" stroke="grey" strokeLinecap="round" strokeWidth="2" d="M4 7h16v16H4zm4 2V5c0-2.21 1.795-4 4-4h0c2.21 0 4 1.795 4 4v4" /></svg>

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import ProductoCard from './components/ProductoCard'
 import Navbar from './components/Navbar'
 import './css/style.css'
 import Footer from './components/Footer'
@@ -20,37 +19,35 @@ import NotFound from './pages/NotFound'
 
 function App() {
 	return (
-		<>
-			<Routes>
-				<Route path='/' element={<Home />} />
-				<Route path='/home' element={<Home />} />
-				<Route path='/:slug/menu' element={<Menu></Menu>} />
+		<Routes>
+			<Route path='/' element={<Home />} />
+			<Route path='/home' element={<Home />} />
+			<Route path='/:slug/menu' element={<Menu></Menu>} />
 
-				<Route path='/checkout' element={<ProductoCard />} />
-				<Route path='/success' element={<Success />} />
-				<Route path='/login' element={<Login />} />
-				<Route path='/register' element={<Register />} />
+			{/* <Route path='/checkout' element={<ProductoCard />} /> */}
+			<Route path='/success' element={<Success />} />
+			<Route path='/login' element={<Login />} />
+			<Route path='/register' element={<Register />} />
 
-				<Route element={<ProtectedRoute />} >
-					<Route path='/dashboard' element={<Dashboard />} />
-				</Route>
-				<Route element={<ProtectedRoute />} >
-					<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
-				</Route>
-				<Route element={<ProtectedRoute />} >
-					<Route path='/productos' element={<GestionProductos />} />
-				</Route>
-				<Route element={<ProtectedRoute />} >
-					<Route path='/papelera' element={<Papelera />} />
-				</Route>
-				<Route element={<ProtectedRoute />} >
-					<Route path='/test' element={<Test />} />
-				</Route>
+			<Route element={<ProtectedRoute />} >
+				<Route path='/dashboard' element={<Dashboard />} />
+			</Route>
+			<Route element={<ProtectedRoute />} >
+				<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
+			</Route>
+			<Route element={<ProtectedRoute />} >
+				<Route path='/productos' element={<GestionProductos />} />
+			</Route>
+			<Route element={<ProtectedRoute />} >
+				<Route path='/papelera' element={<Papelera />} />
+			</Route>
+			<Route element={<ProtectedRoute />} >
+				<Route path='/test' element={<Test />} />
+			</Route>
 
-				<Route path="*" element={<Navigate to='/not-found' />} />
-				<Route path="/not-found" element={<NotFound />} />
-			</Routes>
-		</>
+			<Route path="*" element={<Navigate to='/not-found' />} />
+			<Route path="/not-found" element={<NotFound />} />
+		</Routes>
 	)
 }
 export default App

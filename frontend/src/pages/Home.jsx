@@ -22,16 +22,21 @@ export default function Home() {
 
   return (
     <>
-      <Navbar title='¡Busca restaurantes!'
+      <Navbar title='Nova Orden'
         onLeftButtonClick={() => navigate('/menu')}
         onRightButtonClick={() => console.log("TODO: Abrir el menú lateral...")}
       />
-      <main className='container-fluid px-0'>
-        <section className="d-flex flex-column flex-md-row flex-wrap row-gap-sm-2 justify-content-center">
+      <main className='container-fluid' style={{ marginTop: 20 }}>
+
+        <section className="d-flex flex-column row-gap-sm-2 justify-content-center">
+          <h4 className='fw-bold'>Restaurantes populares</h4>
           {[1, 2, 3, 4].map((value, index) => (
             <NegocioCard key={index} negocio={value == 1 ? negocio : null}></NegocioCard>
           ))}
         </section>
+
+
+
       </main>
     </>
   )

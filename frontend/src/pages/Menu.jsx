@@ -1,7 +1,7 @@
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { get } from '../utils/apiUtils'
-import ProductoCard from '../components/ProductoCard'
+import MenuProductoCard from '../components/MenuProductoCard'
 import Dialog from '../components/Dialog'
 import AgregarProduto from '../components/AgregarProducto'
 import Categorias from '../components/home/Categorias'
@@ -9,6 +9,7 @@ import SearchBar from '../components/home/SearchBar'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import DrawerCarrito from '../components/DrawerCarrito'
+import { Divider, Snackbar } from '@mui/material'
 
 export default function Menu() {
     const { slug } = useParams()
@@ -19,9 +20,9 @@ export default function Menu() {
     const [negocio, setNegocio] = useState(null)
     const [categorias, setCategorias] = useState([])
     const detalleProducto = useRef(null)
+    const [mostrarBotones, setMostrarBotones] = useState(true)
 
     useEffect(() => {
-        console.log("Slug:", slug)
         if (slug) {
             (async () => {
                 const response = await get(`/api/menu/${slug}`)
@@ -77,23 +78,26 @@ export default function Menu() {
         } else {
             noItems.classList?.toggle('d-none', true)
         }
+
+        setMostrarBotones(evt.target.value.trim() === '')
     }
 
     return (
         <>
-            <Navbar title='¡Ordena ahora!'
+            <Navbar title='¡Ordena ahora!' negocio={negocio}
                 onLeftButtonClick={() => navigate('/')}
                 onRightButtonClick={() => console.log("TODO: Abrir el menú lateral...")}
             />
-            <main className='container-fluid px-0'>
+            <main className='container-fluid px-0' style={{ marginBottom: 30, backgroundColor: '#f8f8f8' }}>
                 <AgregarProduto ref={detalleProducto} />
 
                 <div className='container-fluid g-0 p-0 m-0'>
                     <div className='row py-3 justify-content-center mb-0 mx-0'>
                         <SearchBar func={searchProductos} />
-                        <Categorias negocio={negocio} categorias={categorias} />
+                        {mostrarBotones &&
+                            <Categorias negocio={negocio} categorias={categorias} />
+                        }
                     </div>
-
                     <div className='py-4'>
                         {
                             categorias.map(categoria => (categoria.productos.length > 0 ?
@@ -106,8 +110,8 @@ export default function Menu() {
                                         {categoria.nombre}
                                     </h5>
                                     {
-                                        categoria.productos.map(producto => producto.visible ? (
-                                            <ProductoCard
+                                        categoria.productos.map(producto => producto.visible && (
+                                            <MenuProductoCard
                                                 key={producto.id}
                                                 producto={producto}
                                                 onDetail={() => {
@@ -115,12 +119,11 @@ export default function Menu() {
                                                     detalleProducto.current.open()
                                                 }}
                                             />
-                                        ) : null)
+                                        ))
                                     }
                                 </article> : null))
                         }
                     </div>
-
 
                     <div className='no-items-shown d-none'>
                         <div className='d-flex flex-column align-items-center'>

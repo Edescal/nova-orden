@@ -7,10 +7,12 @@ import { numberToMoney } from '../utils/numberToMoney'
 import Dialog from './Dialog'
 
 import noimgfound from '../assets/noimgfound.jpg'
+import { useNotification } from '../context/NotificationContext'
 
 
 export default function AgregarProduto({ ref }) {
     const { addItem } = useCart()
+    const { showSnack } = useNotification()
 
     const dialog = useRef()
     const form = React.useRef()
@@ -82,6 +84,8 @@ export default function AgregarProduto({ ref }) {
                 console.info(data)
                 addItem(data)
                 dialog.current?.close()
+
+                showSnack('Se añadió un producto al carrito', 'success')
             }
         } catch (error) {
             console.error(error)
