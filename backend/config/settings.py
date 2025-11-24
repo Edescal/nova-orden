@@ -24,19 +24,12 @@ env.read_env(BASE_DIR / '.env')
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG", default=True)
+DEBUG = env("DEBUG", default=False)
 
 ALLOWED_HOSTS = [
     '*'
-    # 'localhost',
-    # '127.0.0.1',
-    # '192.168.0.5', 
-    # '172.28.1.211',
-    # '172.28.7.129',
-    # '10.186.126.42',
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://192.168.0.5:5173",
@@ -70,7 +63,7 @@ from datetime import timedelta
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -79,12 +72,14 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
+    'whitenoise',
     "corsheaders",
     'users',
     'api',
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -95,10 +90,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-LOGIN_URL = '/login/'   # o el nombre del path a tu login
-LOGIN_REDIRECT_URL = '/dashboard/'  # opcional
+LOGIN_URL = '/login/' 
+LOGIN_REDIRECT_URL = '/dashboard/'
 
 REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 
@@ -110,11 +108,6 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser'
      ),
-
-    # 'DEFAULT_PERMISSIONS_CLASSES':(
-    #     'rest_framework.permissions.IsAuthenticated'
-    # ),
-
     'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S",
     'USE_TZ': True,
 }
@@ -147,23 +140,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    # 'alt': {
-    #     'ENGINE': 'django.db.backends.mysql',  
-    #     'NAME': 'citasweb',  
-    #     'USER': env('DATABASE_USER'),
-    #     'PASSWORD': env('DATABASE_PASSWORD'),
-    #     'HOST': 'localhost',
-    #     'PORT': '3306',                        
-    # }
 }
 
 AUTH_USER_MODEL = 'users.Usuario'
@@ -209,3 +190,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_ROOT = BASE_DIR / "media"
 
 MEDIA_URL = "/media/"
+
+#configuración de archivos estáticos para producción
+STATIC_ROOT = BASE_DIR / 'prodstatic'
+#es la ruta donde se servirán los archivos estáticos en producción
+STATIC_URL = 'static/'
+# Usar WhiteNoise para manejar archivos estáticos, los comprime para mejorar el rendimiento
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

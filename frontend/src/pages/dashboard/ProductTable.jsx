@@ -5,7 +5,6 @@ import { Box, Button, Checkbox } from '@mui/material';
 import { numberToMoney } from '../../utils/numberToMoney';
 import { useEffect, useState } from 'react';
 import { get, put } from '../../utils/apiUtils';
-import Dialog from '../../components/Dialog';
 import { useModal } from '../../context/ModalContext';
 
 const ProductTable = ({ products = [], onAdd, onEdit, page = 0, rowcount = 10, handlePaginationChange = null }) => {

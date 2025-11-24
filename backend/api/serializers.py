@@ -39,10 +39,19 @@ class UsuarioSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class NegocioSerializer(serializers.ModelSerializer):
+    categorias = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Negocio
         fields = '__all__'
         read_only_fields = ["id"]
+
+    def get_categorias(self, negocio: models.Negocio):
+        if negocio.pk:
+            serializer = CategoriaSerializer(negocio.categorias.all(), many=True, context=self.context)
+            return serializer.data
+
+    
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -160,4 +169,6 @@ class OrdenSerializer(serializers.ModelSerializer):
     
     def get_fecha(self, orden: models.Orden):
         return UNIX_timestamp(orden.fecha)
-    
+
+
+

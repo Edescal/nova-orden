@@ -3,7 +3,7 @@ import ProductoCard from './components/ProductoCard'
 import Navbar from './components/Navbar'
 import './css/style.css'
 import Footer from './components/Footer'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import DrawerCarrito from './components/DrawerCarrito'
 import Home from './pages/Home'
 import Menu from './pages/Menu'
@@ -16,13 +16,16 @@ import GestionProductos from './pages/dashboard/GestionProductos'
 import Test from './pages/Test'
 import ProtectedRoute from './protected/ProtectedRoute'
 import Register from './pages/Register'
+import NotFound from './pages/NotFound'
 
 function App() {
 	return (
 		<>
 			<Routes>
 				<Route path='/' element={<Home />} />
-				<Route path='/menu' element={<Menu></Menu>} />
+				<Route path='/home' element={<Home />} />
+				<Route path='/:slug/menu' element={<Menu></Menu>} />
+
 				<Route path='/checkout' element={<ProductoCard />} />
 				<Route path='/success' element={<Success />} />
 				<Route path='/login' element={<Login />} />
@@ -43,6 +46,9 @@ function App() {
 				<Route element={<ProtectedRoute />} >
 					<Route path='/test' element={<Test />} />
 				</Route>
+
+				<Route path="*" element={<Navigate to='/not-found' />} />
+				<Route path="/not-found" element={<NotFound />} />
 			</Routes>
 		</>
 	)

@@ -1,5 +1,5 @@
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { get } from '../utils/apiUtils'
 import ProductoCard from '../components/ProductoCard'
 import Dialog from '../components/Dialog'
@@ -11,20 +11,27 @@ import Footer from '../components/Footer'
 import DrawerCarrito from '../components/DrawerCarrito'
 
 export default function Menu() {
+    const { slug } = useParams()
     const navigate = useNavigate()
+
     const [open, setOpen] = useState(false)
 
+    const [negocio, setNegocio] = useState(null)
     const [categorias, setCategorias] = useState([])
     const detalleProducto = useRef(null)
 
     useEffect(() => {
-        (async () => {
-            const data = await get('/api/categorias')
-            if (data) {
-                console.log(data)
-                setCategorias(data.results)
-            }
-        })()
+        console.log("Slug:", slug)
+        if (slug) {
+            (async () => {
+                const response = await get(`/api/menu/${slug}`)
+                if (response) {
+                    console.log(response)
+                    setNegocio(response.negocio)
+                    setCategorias(response.negocio.categorias)
+                }
+            })()
+        }
     }, [])
 
     const searchProductos = evt => {
@@ -84,7 +91,7 @@ export default function Menu() {
                 <div className='container-fluid g-0 p-0 m-0'>
                     <div className='row py-3 justify-content-center mb-0 mx-0'>
                         <SearchBar func={searchProductos} />
-                        <Categorias />
+                        <Categorias negocio={negocio} categorias={categorias} />
                     </div>
 
                     <div className='py-4'>

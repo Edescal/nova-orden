@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT, HTTP_200_OK
 from rest_framework import viewsets, permissions, authentication
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -137,7 +137,8 @@ class ProductoViewSet(viewsets.ModelViewSet):
                 print(f'[API Error]: {e}')
 
         return Response('No se pudo actualizar el producto')
-        
+
+
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = models.Categoria.objects.all().order_by("id")
@@ -246,6 +247,20 @@ def create_product_wrapper(data):
     return wrapper
 
 
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([])
+def get_menu(request, slug_negocio):
+    print(slug_negocio)
+    negocio = models.Negocio.objects.filter(slug=slug_negocio).first()
+    if not negocio:
+        return JsonResponse({'message': 'Negocio no encontrado.'}, status=404)
+    return JsonResponse({
+        'message': 'Negocio encontrado.',
+        'negocio': serializers.NegocioSerializer(negocio, context={'request': request}).data,
+        }, status=HTTP_200_OK)
+
+
 @csrf_exempt
 def get_csrf(request):
     response = JsonResponse({'detail': 'CSRF cookie set'})
@@ -306,6 +321,7 @@ def register_view(request):
         return Response({'message': 'User registered successfully.', 'user': serialized}, status=201)
     
     return Response({'message': 'User registered successfully.'}, status=201)
+
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])

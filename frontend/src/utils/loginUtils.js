@@ -8,7 +8,6 @@ export async function getCSRFToken() {
             credentials: "include"
         })
 
-        
         if (!response.ok) {
             throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
         }

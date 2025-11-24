@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator, MaxLengthValidator, MinLengthValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 import uuid
 
@@ -84,6 +85,10 @@ class Negocio(models.Model):
         default=uuid.uuid4,
         editable=False
     )
+    slug = models.SlugField(
+        unique=True, 
+        blank=True,
+    )
     nombre = models.CharField(
         null=False,
         blank=False,
@@ -126,6 +131,11 @@ class Negocio(models.Model):
         related_name='negocios'
     )
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nombre)
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
         return f'{self.nombre}. {self.descripcion}(\n'\
                     f'direccion: {self.direccion}\n' \
@@ -144,6 +154,12 @@ class Categoria(models.Model):
         blank=False,
         default='Nueva categoría',
         max_length=64,
+    )
+    negocio = models.ForeignKey(
+        Negocio,
+        on_delete=models.CASCADE,
+        default='3c02f6c8b916424e9bd00cb1334b3de2',
+        related_name='categorias'
     )
 
     def __str__(self):

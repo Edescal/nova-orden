@@ -1,22 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de inicio del backend</title>
-</head>
-<body>
-    <h2>Pantalla de inicio</h2>
-    
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Nova Orden - Inicio
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
 
 
-    <form action="/" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="foto">Sube una foto para un producto: </label>
-        <input type="file" name="foto" id="foto">
-        <label for="id">Sube una foto: </label>
-        <input type="number" name="id" id="id" placeholder="ID del producto">
-        <button type="submit">Actualizar</button>
-    </form>
-</body>
-</html>
+{% block body %}
+<div class="content min-vh-100 d-flex flex-column justify-content-center align-items-center">
+    <div class="d-flex align-items-center flex-column">
+        <h1>Nova Orden</h1>
+        <h4 class="my-3">En línea</h4>
+        <div class="border border-2 rounded rounded-4 p-4 d-flex flex-column row-gap-3 align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="6em" height="6em" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                d="M18.06 23h1.66c.84 0 1.53-.65 1.63-1.47L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26c1.44 1.42 2.43 2.89 2.43 5.29zM1 22v-1h15.03v1c0 .54-.45 1-1.03 1H2c-.55 0-1-.46-1-1m15.03-7C16.03 7 1 7 1 15zM1 17h15v2H1z" />
+            </svg>
+            <p>¡Los servicios del backend están listos para consumirse!</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle bottom-0 mb-0 mt-auto';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        document.body.appendChild(particle);
+    }
+</script>
+{% endblock %}

@@ -2,17 +2,7 @@ import { useEffect, useState } from 'react'
 import { get } from '../../utils/apiUtils'
 import { HashLink } from 'react-router-hash-link'
 
-export default function Categorias() {
-    const [categorias, setCategorias] = useState(null)
-    useEffect(() => {
-        (async () => {
-            const data = await get('/api/categorias')
-            if (data) {
-                const categorias = data.results.map(({ id, nombre }) => ({ id, nombre }))
-                setCategorias(categorias)
-            }
-        })()
-    }, [])
+export default function Categorias({ negocio = null, categorias = [] }) {
 
     const mapToSvg = (categoria) => {
         return [
@@ -25,7 +15,7 @@ export default function Categorias() {
 
 
     const toCategoria = (nombre) => {
-        return `/#${nombre.split(' ').join('-').toLowerCase()}`
+        return negocio ? `/${negocio.slug}/menu#${nombre.split(' ').join('-').toLowerCase()}` : '#'
     }
     const scrollWithOffset = (el) => {
         const y = el.getBoundingClientRect().top + window.pageYOffset - 60;
