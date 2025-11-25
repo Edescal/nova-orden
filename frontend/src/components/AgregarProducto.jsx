@@ -6,6 +6,7 @@ import { post } from '../utils/apiUtils'
 import { numberToMoney } from '../utils/numberToMoney'
 import { useNotification } from '../context/NotificationContext'
 import noimgfound from '../assets/noimgfound.jpg'
+import AxiosInstance from '../context/AuthContext'
 
 
 export default function AgregarProduto({ ref }) {
@@ -76,37 +77,32 @@ export default function AgregarProduto({ ref }) {
             const query = form.current.querySelectorAll('[data-group]')
             query.forEach(radioGroup => {
                 const radios = radioGroup.querySelectorAll('.atomic-data')
-                const selected = Array.from(radios).filter(i => {
-                    console.log(i)
-                    const query = i.querySelector('input')
-                    if (query) {
-                        return query
-                    }
-                    console.log(query)
-                })
-
-                console.log(radios)
-                console.log(selected)
-
+                const inputs = Array.from(radios).map(radio => radio.querySelector('input'))
+                const selected = inputs.filter(i => i.checked)
+                // console.log(selected)
+                // console.log(selected[0].parentNode)
+                // console.log(selected[0].parentNode.dataset)
                 // const selected = Array.from(radioGroup.elements).filter(i => i.checked)
                 if (selected.length !== 1) {
                     throw new Error(`Hay un grupo de opciones que no fue seleccionado...`)
                 }
-                wrapperOptions.push({
-                    'id': selected[0].id,
-                    'precio': selected[0].dataset.precio,
-                })
+                const opcion ={
+                    'id': selected[0].parentNode.dataset.id,
+                    'precio': selected[0].parentNode.dataset.precio,
+                }
+                console.log(opcion)
+                wrapperOptions.push(opcion)
             });
 
-            const data = await post('/api/wrappers/', {
+            const response = await AxiosInstance.post('/api/wrappers/', {
                 'producto': producto.id,
                 'cantidad': cantidad,
                 'options': wrapperOptions,
                 'anotacion': textArea.current.value.trim()
             })
-            if (data) {
-                console.info(data)
-                addItem(data)
+            if (response) {
+                console.info(response.data)
+                addItem(response.data)
                 dialog.current?.close()
 
                 showSnack('Se añadió un producto al carrito', 'success')
