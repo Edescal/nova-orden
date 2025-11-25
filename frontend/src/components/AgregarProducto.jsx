@@ -4,10 +4,8 @@ import ButtonDark from './ButtonDark'
 import { useCart } from '../context/CartContext'
 import { post } from '../utils/apiUtils'
 import { numberToMoney } from '../utils/numberToMoney'
-import Dialog from './Dialog'
-
-import noimgfound from '../assets/noimgfound.jpg'
 import { useNotification } from '../context/NotificationContext'
+import noimgfound from '../assets/noimgfound.jpg'
 
 
 export default function AgregarProduto({ ref }) {
@@ -19,6 +17,7 @@ export default function AgregarProduto({ ref }) {
     const textArea = React.useRef()
     const [producto, setProducto] = useState(null)
     const [cantidad, setCantidad] = useState(1)
+    const [grupos, setGrupos] = useState([])
     const [precio, setPrecio] = useState(0)
 
     useImperativeHandle(ref, () => ({
@@ -36,6 +35,11 @@ export default function AgregarProduto({ ref }) {
             if (p) {
                 setProducto(p)
                 setPrecio(p.precio)
+                setGrupos(p.option_groups.map(({ id, opciones }) => ({
+                    id,
+                    opciones: opciones.map(({ id }) => ({ id })),
+                    selected: null
+                })))
             }
         }
     }), [])
@@ -52,6 +56,12 @@ export default function AgregarProduto({ ref }) {
         setPrecio(Number(producto.precio) + suma)
     }
 
+    const handleOptionChange = (id_grupo, id_opcion) => {
+        console.log(id_grupo, Number(id_opcion))
+        setGrupos()
+
+    }
+
     const handleSubmit = async evt => {
         evt.preventDefault()
         try {
@@ -63,10 +73,24 @@ export default function AgregarProduto({ ref }) {
             }
 
             const wrapperOptions = []
-            form.current.querySelectorAll('[data-group]').forEach(radioGroup => {
-                const selected = Array.from(radioGroup.elements).filter(i => i.checked)
+            const query = form.current.querySelectorAll('[data-group]')
+            query.forEach(radioGroup => {
+                const radios = radioGroup.querySelectorAll('.atomic-data')
+                const selected = Array.from(radios).filter(i => {
+                    console.log(i)
+                    const query = i.querySelector('input')
+                    if (query) {
+                        return query
+                    }
+                    console.log(query)
+                })
+
+                console.log(radios)
+                console.log(selected)
+
+                // const selected = Array.from(radioGroup.elements).filter(i => i.checked)
                 if (selected.length !== 1) {
-                    throw new Error(`Hay una opción que no fue seleccionada...`)
+                    throw new Error(`Hay un grupo de opciones que no fue seleccionado...`)
                 }
                 wrapperOptions.push({
                     'id': selected[0].id,
@@ -126,7 +150,7 @@ export default function AgregarProduto({ ref }) {
                             <span className='px-2 text-secondary'>Customiza tu pedido:</span>
                             {
                                 producto?.option_groups?.map(group => (
-                                    <Opciones group={group} key={group.id} />
+                                    <Opciones group={group} key={group.id} onChange={({ target }) => handleOptionChange(group.id, target.value)} />
                                 ))
                             }
                             <div className="input-group w-100">

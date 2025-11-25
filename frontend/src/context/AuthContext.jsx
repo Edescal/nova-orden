@@ -2,8 +2,12 @@ import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { createContext, useContext, useMemo, useState } from 'react'
 
+const URL_BASE = import.meta.env.VITE_DEV
+    ? import.meta.env.VITE_BASE_URL
+    : ''
+
 const AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL,
+    baseURL: URL_BASE,
     withCredentials: true,
     withXSRFToken: true,
 })
@@ -11,7 +15,7 @@ const AxiosInstance = axios.create({
 AxiosInstance.interceptors.request.use(
     config => {
         console.log('Interceptando request...')
-        const access = localStorage.getItem('access') ?? false        
+        const access = localStorage.getItem('access') ?? false
         if (access) {
             config.headers['Authorization'] = `Bearer ${access}`
         }
@@ -125,7 +129,7 @@ export const AuthProvider = ({ children }) => {
         }
         return false
     }
-    
+
     const value = useMemo(() => ({
         user: access,
         login,

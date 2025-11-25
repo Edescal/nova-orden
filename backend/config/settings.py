@@ -57,9 +57,6 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
 
-
-from datetime import timedelta
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -125,7 +122,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'frontend' / 'dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -181,11 +178,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -194,6 +189,8 @@ MEDIA_URL = "/media/"
 #configuración de archivos estáticos para producción
 STATIC_ROOT = BASE_DIR / 'prodstatic'
 #es la ruta donde se servirán los archivos estáticos en producción
-STATIC_URL = 'static/'
+STATIC_URL = 'assets/'
+# directorios de contenido estático
+STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'dist' / 'assets' ]
 # Usar WhiteNoise para manejar archivos estáticos, los comprime para mejorar el rendimiento
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

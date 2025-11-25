@@ -1,15 +1,13 @@
-import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { get } from '../utils/apiUtils'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import MenuProductoCard from '../components/MenuProductoCard'
-import Dialog from '../components/Dialog'
 import AgregarProduto from '../components/AgregarProducto'
 import Categorias from '../components/home/Categorias'
 import SearchBar from '../components/home/SearchBar'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import DrawerCarrito from '../components/DrawerCarrito'
-import { Divider, Snackbar } from '@mui/material'
+import AxiosInstance from '../context/AuthContext'
 
 export default function Menu() {
     const { slug } = useParams()
@@ -25,11 +23,11 @@ export default function Menu() {
     useEffect(() => {
         if (slug) {
             (async () => {
-                const response = await get(`/api/menu/${slug}`)
+                const response = await AxiosInstance.get(`/api/menu/${slug}`)
                 if (response) {
-                    console.log(response)
-                    setNegocio(response.negocio)
-                    setCategorias(response.negocio.categorias)
+                    console.log(response.data)
+                    setNegocio(response.data.negocio)
+                    setCategorias(response.data.negocio.categorias)
                 }
             })()
         }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import AxiosInstance, { useAuth } from '../context/AuthContext'
 import FormProducto from '../components/formularios/FormProducto'
 import { Dialog } from '@mui/material'
+import SelectProducto from '../components/SelectProducto'
 
 export default function Test() {
     const [producto, setProducto] = useState(null)
@@ -43,11 +44,13 @@ export default function Test() {
     return (
         <div>
             <button onClick={handleWhoAmI}>PUTAAA</button>
-            <Dialog open>
-                <FormProducto producto={producto} onSubmit={handleSubmit}>
-
-                </FormProducto>
+            <Dialog>
+                <FormProducto producto={producto} onSubmit={handleSubmit} />
             </Dialog>
+
+            <SelectProducto producto={producto} >
+
+            </SelectProducto>
         </div>
     )
 }

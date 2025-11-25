@@ -2,6 +2,7 @@ import { act, createContext, useCallback, useContext, useMemo, useReducer, useSt
 import { useNavigate } from 'react-router-dom'
 import { get, post } from '../utils/apiUtils'
 import { Snackbar } from '@mui/material'
+import AxiosInstance from './AuthContext'
 
 
 export const CartContext = createContext([])
@@ -81,13 +82,13 @@ export const CartProvider = ({ children }) => {
                 nombre_cliente: nombreCliente,
                 productos: cart.map(producto => ({ ...producto, id: null })),
             }
-            const resultado = await post('/api/ordenes/', body)
+            const resultado = await AxiosInstance.post('/api/ordenes/', body)
             if (resultado) {
                 dispatch({
                     type: 'reset',
                     data: undefined
                 })
-                return resultado
+                return resultado.data
             }
             throw new Error('No devolvió nada la petición')
         } catch (error) {

@@ -42,8 +42,9 @@ function App() {
 				<Route path='/papelera' element={<Papelera />} />
 			</Route>
 			<Route element={<ProtectedRoute />} >
-				<Route path='/test' element={<Test />} />
 			</Route>
+			
+			<Route path='/test' element={<Test />} />
 
 			<Route path="*" element={<Navigate to='/not-found' />} />
 			<Route path="/not-found" element={<NotFound />} />

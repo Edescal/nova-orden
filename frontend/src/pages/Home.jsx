@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import '../css/Home.css'
 import { useNavigate } from 'react-router-dom'
-import { get } from '../utils/apiUtils'
 import Navbar from '../components/Navbar'
 import NegocioCard from '../components/home/NegocioCard'
-
+import AxiosInstance, { useAuth } from '../context/AuthContext'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -12,10 +11,10 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      const data = await get('/api/negocios')
-      if (data?.count > 0) {
-        console.log(data)
-        setNegocio(data.results[0])
+      const response = await AxiosInstance.get('/api/negocios')
+      if (response?.data?.count > 0) {
+        setNegocio(response.data.results[0])
+        console.log(response.data)
       }
     })()
   }, [])
@@ -34,9 +33,6 @@ export default function Home() {
             <NegocioCard key={index} negocio={value == 1 ? negocio : null}></NegocioCard>
           ))}
         </section>
-
-
-
       </main>
     </>
   )
