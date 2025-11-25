@@ -36,7 +36,7 @@ AxiosInstance.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             try {
 
-                const refreshRes = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/refresh/`, {
+                const refreshRes = await axios.post(`${URL_BASE}/api/refresh/`, {
                     refresh: localStorage.getItem("refresh") ?? null,
                 })
                 console.log(refreshRes)
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const res = await AxiosInstance.post(`${import.meta.env.VITE_BASE_URL}/api/token/`, {
+            const res = await AxiosInstance.post('/api/token/', {
                 'username': username,
                 'password': password,
             })

@@ -31,19 +31,10 @@ function App() {
 
 			<Route element={<ProtectedRoute />} >
 				<Route path='/dashboard' element={<Dashboard />} />
-			</Route>
-			<Route element={<ProtectedRoute />} >
 				<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
-			</Route>
-			<Route element={<ProtectedRoute />} >
 				<Route path='/productos' element={<GestionProductos />} />
-			</Route>
-			<Route element={<ProtectedRoute />} >
 				<Route path='/papelera' element={<Papelera />} />
 			</Route>
-			<Route element={<ProtectedRoute />} >
-			</Route>
-			
 			<Route path='/test' element={<Test />} />
 
 			<Route path="*" element={<Navigate to='/not-found' />} />
