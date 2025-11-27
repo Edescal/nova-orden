@@ -15,7 +15,7 @@ const AxiosInstance = axios.create({
 AxiosInstance.interceptors.request.use(
     config => {
         console.log('Interceptando request...')
-        const access = localStorage.getItem('access') ?? false
+        const access = localStorage.getItem('access') ?? 'nothing'
         if (access) {
             config.headers['Authorization'] = `Bearer ${access}`
         }
