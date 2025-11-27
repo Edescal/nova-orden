@@ -28,10 +28,10 @@ export default function GestionProductos() {
 				console.log(response.data)
 			}
 		} else if (value < page && productos.previous) {
-			const data = await get(productos.previous)
-			if (data) {
-				setProductos(data)
-				console.log(data)
+			const response = await AxiosInstance.get(productos.previous)
+			if (response) {
+				setProductos(response.data)
+				console.log(response.data)
 			}
 		}
 	}
@@ -43,10 +43,10 @@ export default function GestionProductos() {
 	}, [page, productos])
 
 	const fetchProductos = async () => {
-		const data = await get('/api/productos')
-		if (data) {
-			setProductos(data)
-			console.log(data)
+		const response = await AxiosInstance.get('/api/productos')
+		if (response) {
+			setProductos(response.data)
+			console.log(response)
 		}
 	}
 
@@ -105,7 +105,7 @@ export default function GestionProductos() {
 					padding: 2
 				}}>
 				<Button
-					startIcon={<PlusIcon/>}
+					startIcon={<PlusIcon />}
 					variant="contained"
 					onClick={handleCreateProducto}
 					color="primary"

@@ -15,7 +15,7 @@ export default function OrdenesEntregadas() {
     const fetchOrdenes = async () => {
         const response = await AxiosInstance.get('/api/ordenes')
         if (response) {
-            setOrdenes(response.data.results.filter(x => x.estado === 3))
+            setOrdenes(response.data.results.filter(x => x.estado === 3) ?? [])
 
         }
     }

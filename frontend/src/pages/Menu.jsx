@@ -32,7 +32,7 @@ export default function Menu() {
                 if (response) {
                     console.log(response.data)
                     setNegocio(response.data.negocio)
-                    setCategorias(response.data.negocio.categorias)
+                    setCategorias(response.data?.negocio?.categorias ?? [])
                 }
             })()
         }
