@@ -1,4 +1,46 @@
-/* Negocio Card */
+.hero:hover {
+  cursor: pointer;
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+
+}
+
+.hero.morado {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.hero.rosado {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+
+.btn-outline-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.input-group-lg .form-control:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.input-group-lg .input-group-text {
+  color: #667eea;
+}
+
+@media (max-width: 768px) {
+  .display-5 {
+    font-size: 2rem;
+  }
+}
+
+
+
+
 .negocio-card {
   background: white;
   border-radius: 16px;
@@ -147,6 +189,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -155,83 +198,83 @@
 
 
 .btn-categoria {
-    cursor: pointer;
+  cursor: pointer;
+
+  &>* {
+    pointer-events: none;
+    transform: scale(1);
+    transform-origin: bottom;
+    transition: all 0.2s ease;
+  }
+
+  line-height: 1;
+  text-decoration: none;
+
+  height: 5em;
+  width: 5em;
+  color: rgb(242 127 13);
+  background-color: rgb(242 127 13 / 0.2);
+
+  border-radius: 15px;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  row-gap: 0.5em;
+  transition: all 0.2s ease;
+
+  &:hover,
+  &:active {
+    scale: 1.05;
+    filter: brightness(0.95);
 
     &>* {
-        pointer-events: none;
-        transform: scale(1);
-        transform-origin: bottom;
-        transition: all 0.2s ease;
+      transform: scale(1.2);
+      transform-origin: bottom;
+      transition: all 0.4s ease;
     }
 
-    line-height: 1;
-    text-decoration: none;
-    
-    height: 5em;
-    width: 5em;
-    color: rgb(242 127 13);
-    background-color: rgb(242 127 13 / 0.2);
-    
-    border-radius: 15px;
-
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    align-items: center;
-    row-gap: 0.5em;
     transition: all 0.2s ease;
-
-    &:hover,
-    &:active {
-        scale: 1.05;
-        filter: brightness(0.95);
-        &>* {
-            transform: scale(1.2);
-            transform-origin: bottom;
-            transition: all 0.4s ease;
-        }
-        transition: all 0.2s ease;
-    }
+  }
 }
 
 
 .scroll-container {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    padding: 1rem;
-    scrollbar-width: none;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 1rem;
+  scrollbar-width: none;
 }
 
 .scroll-container::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .scroll-item {
+  flex: 0 0 auto;
+  width: 10em;
+  height: 10em;
+  color: white;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 350px) {
+  .scroll-item {
     flex: 0 0 auto;
-    width: 10em;
-    height: 10em;
+    width: 6em;
+    height: 6em;
     color: white;
     border-radius: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+  }
 }
-
-@media (max-width: 350px) {
-    .scroll-item {
-        flex: 0 0 auto;
-        width: 6em;
-        height: 6em;
-        color: white;
-        border-radius: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-}
-
-

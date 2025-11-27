@@ -79,14 +79,10 @@ export default function AgregarProduto({ ref }) {
                 const radios = radioGroup.querySelectorAll('.atomic-data')
                 const inputs = Array.from(radios).map(radio => radio.querySelector('input'))
                 const selected = inputs.filter(i => i.checked)
-                // console.log(selected)
-                // console.log(selected[0].parentNode)
-                // console.log(selected[0].parentNode.dataset)
-                // const selected = Array.from(radioGroup.elements).filter(i => i.checked)
                 if (selected.length !== 1) {
                     throw new Error(`Hay un grupo de opciones que no fue seleccionado...`)
                 }
-                const opcion ={
+                const opcion = {
                     'id': selected[0].parentNode.dataset.id,
                     'precio': selected[0].parentNode.dataset.precio,
                 }
@@ -101,6 +97,13 @@ export default function AgregarProduto({ ref }) {
                 'anotacion': textArea.current.value.trim()
             })
             if (response) {
+                console.log({
+                    'producto': producto.id,
+                    'cantidad': cantidad,
+                    'options': wrapperOptions,
+                    'anotacion': textArea.current.value.trim()
+                })
+                console.log('----')
                 console.info(response.data)
                 addItem(response.data)
                 dialog.current?.close()

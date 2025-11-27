@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import AxiosInstance, { useAuth } from '../context/AuthContext'
-import FormProducto from '../components/formularios/FormProducto'
-import { Dialog } from '@mui/material'
 import SelectProducto from '../components/SelectProducto'
 
 export default function Test() {
+    const [open, setOpen] = useState(false)
     const [producto, setProducto] = useState(null)
     const auth = useAuth()
 
@@ -12,7 +11,7 @@ export default function Test() {
         (async () => {
             const res = await auth.whoami()
             if (res) {
-                console.log(res)
+                console.log(res.data)
             }
         })()
     }
@@ -27,30 +26,11 @@ export default function Test() {
         })()
     }, [])
 
-    const handleSubmit = async (data) => {
-        if (producto) {
-            console.log(producto)
-            const res = await AxiosInstance.put(`api/productos/${producto.id}/`, data)
-            console.log(res)
-            return
-
-        }
-        const res = await AxiosInstance.post('/api/productos/', data)
-        if (res) {
-            console.log(res)
-        }
-    }
-
     return (
         <div>
-            <button onClick={handleWhoAmI}>PUTAAA</button>
-            <Dialog>
-                <FormProducto producto={producto} onSubmit={handleSubmit} />
-            </Dialog>
+            <button onClick={() => { handleWhoAmI(); setOpen(true) }}>PUTAAA</button>
 
-            <SelectProducto producto={producto} >
-
-            </SelectProducto>
+            <SelectProducto producto={producto} open={open} onClose={() => setOpen(false)} />
         </div>
     )
 }

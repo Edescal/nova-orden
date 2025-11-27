@@ -8,12 +8,17 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import DrawerCarrito from '../components/DrawerCarrito'
 import AxiosInstance from '../context/AuthContext'
+import SelectProducto from '../components/SelectProducto'
 
 export default function Menu() {
     const { slug } = useParams()
     const navigate = useNavigate()
 
+    // Para el carrito
     const [open, setOpen] = useState(false)
+    // Para el modal de agregar producto 
+    const [openAgregar, setOpenAgregar] = useState(false)
+    const [selectedProducto, setSelectedProducto] = useState(null)
 
     const [negocio, setNegocio] = useState(null)
     const [categorias, setCategorias] = useState([])
@@ -82,12 +87,16 @@ export default function Menu() {
 
     return (
         <>
-            <Navbar title='¡Ordena ahora!' negocio={negocio}
+            <Navbar negocio={negocio}
                 onLeftButtonClick={() => navigate('/')}
-                onRightButtonClick={() => console.log("TODO: Abrir el menú lateral...")}
+                hideMenuButton
             />
-            <main className='container-fluid px-0' style={{ marginBottom: 30, backgroundColor: '#f8f8f8' }}>
+            <main className='container-fluid px-0 min-vh-100' style={{ marginBottom: 30, backgroundColor: '#f8f8f8' }}>
                 <AgregarProduto ref={detalleProducto} />
+                <SelectProducto producto={selectedProducto} open={openAgregar} onClose={() => {
+                    // setSelectedProducto(null)
+                    setOpenAgregar(false)
+                }} />
 
                 <div className='container-fluid g-0 p-0 m-0'>
                     <div className='row py-3 justify-content-center mb-0 mx-0'>
@@ -113,8 +122,10 @@ export default function Menu() {
                                                 key={producto.id}
                                                 producto={producto}
                                                 onDetail={() => {
-                                                    detalleProducto.current.update(producto)
-                                                    detalleProducto.current.open()
+                                                    // detalleProducto.current.update(producto)
+                                                    // detalleProducto.current.open()
+                                                    setSelectedProducto(producto)
+                                                    setOpenAgregar(true)
                                                 }}
                                             />
                                         ))

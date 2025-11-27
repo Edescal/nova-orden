@@ -6,14 +6,46 @@ import { Login as LoginIcon } from '@mui/icons-material';
 
 export default function Login() {
     const auth = useAuth();
+    const [disableSubmit, setDisableSubmit] = useState(false)
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({
+        username: '',
+        password: '',
+    })
     const navigate = useNavigate();
 
     const handleSubmit = useEffectEvent(async (evt) => {
         evt.preventDefault();
+        let handleErrors ={
+            username: '',
+            password: '',
+        }
+        if (username === '') {
+            handleErrors = ({
+                ...handleErrors,
+                username: 'El usuario está vacío.'
+            })
+        }
+        if (password === '') {
+            handleErrors = ({
+                ...handleErrors,
+                password: 'La contraseña está vacía.'
+            })
+        }
+
+        setErrors(handleErrors)
+        if (Boolean(handleErrors.username) || Boolean(handleErrors.password)) {
+            console.error('Hay errores en el formulario')
+            return
+        }
+
+        setDisableSubmit(true)
         const response = await auth.login(username, password);
-        console.log('Login:', { username, password });
+        if (response) {
+            console.log('Login:', { username, password });
+        }
+        setDisableSubmit(false)
     });
 
     useEffect(() => {
@@ -76,20 +108,25 @@ export default function Login() {
 
                     {/* Cuerpo del formulario */}
                     <Box
-                        component="form"
+                        component='form'
+                        onSubmit={handleSubmit}
                         sx={{ px: 4, py: 4 }}
                     >
                         <TextField
+                            disabled={disableSubmit}
                             fullWidth
-                            label="Email / Usuario"
-                            type="email"
+                            label="Nombre de usuario"
+                            type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             margin="normal"
                             variant="outlined"
+                            error={Boolean(errors.username)}
+                            helperText={errors.username}
                         />
 
                         <TextField
+                            disabled={disableSubmit}
                             fullWidth
                             label="Contraseña"
                             type="password"
@@ -97,14 +134,16 @@ export default function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             margin="normal"
                             variant="outlined"
+                            error={Boolean(errors.password)}
+                            helperText={errors.password}
                         />
 
                         <Button
+                            disabled={disableSubmit}
                             className="btn-login"
                             variant="contained"
                             fullWidth
-                            type="button"
-                            onClick={handleSubmit}
+                            type="submit"
                             sx={{
                                 mt: 3,
                                 mb: 1,

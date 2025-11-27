@@ -1,8 +1,6 @@
-import { Check } from "@mui/icons-material";
-import { Checkbox, FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material";
+import { FormControlLabel, Radio, RadioGroup } from "@mui/material";
 
 export default function Opciones({ group = null, onChange = null }) {
-
     return group != null &&
         <RadioGroup
             name={group.id}

@@ -1,18 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Template from './Template'
 import { get } from '../../utils/apiUtils'
 import ProductTable from './ProductTable'
 import FormProducto from '../../components/formularios/FormProducto'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography, Paper } from '@mui/material'
 import AxiosInstance from '../../context/AuthContext'
+import { PlusIcon } from '../../assets/PlusIcon'
 
 export default function GestionProductos() {
 	const formRef = useRef()
+	const dialog = useRef()
 	const [type, setType] = useState(false)
 	const [open, setOpen] = useState(false)
-	const dialog = useRef()
 	const [productos, setProductos] = useState([])
-	const [page, setPage] = useState(0)
+	const [page, setPage] = useState(1)
 	const [editProducto, setEditProducto] = useState(null)
 
 	useEffect(() => {
@@ -35,6 +36,12 @@ export default function GestionProductos() {
 			}
 		}
 	}
+
+	const displayPagination = useCallback(() => {
+		const min = (((page) * 10) + 1) - 10
+		const max = ((page + 1) * 10) - 10
+		return `Mostrando ${min}-${max > productos.count ? productos.count : max} de ${productos.count}`
+	}, [page, productos])
 
 	const fetchProductos = async () => {
 		const data = await get('/api/productos')
@@ -81,61 +88,60 @@ export default function GestionProductos() {
 		dialog.current?.close()
 	}
 
-
 	return (
 		<Template activeBtns={['productos']}>
-			<Box sx={{ p: 4 }}>
-				<Box sx={{
+
+			<Typography
+				variant='h4'
+			>
+				Gestión de productos
+			</Typography>
+
+			<Box
+				sx={{
 					display: 'flex',
 					justifyContent: 'space-between',
 					alignItems: 'center',
-					mb: 4
+					width: '100%',
+					padding: 2
 				}}>
-					<Typography variant="h4" sx={{ fontWeight: 600, color: '#1976d2' }}>
-						Gestión de Productos
-					</Typography>
+				<Button
+					startIcon={<PlusIcon/>}
+					variant="contained"
+					onClick={handleCreateProducto}
+					color="primary"
+					sx={{
+						flex: 1,
+						borderRadius: 2,
+						px: 3,
+						py: 1.5,
+						textTransform: 'none',
+						fontSize: '1rem',
+						fontWeight: 500,
+						boxShadow: 3,
+						'&:hover': {
+							boxShadow: 6
+						}
+					}}
+				>
+					Añadir un nuevo producto
+				</Button>
+				<Box
+					sx={{
+						flex: 3,
+						display: 'flex',
+						justifyContent: 'right',
+						alignItems: 'center',
+						width: '100%',
+						gap: 2,
+					}}>
 					<Button
 						variant="contained"
-						onClick={handleCreateProducto}
-						color="secondary"
-						sx={{
-							borderRadius: 2,
-							px: 3,
-							py: 1.5,
-							textTransform: 'none',
-							fontSize: '1rem',
-							fontWeight: 500,
-							boxShadow: 3,
-							'&:hover': {
-								boxShadow: 6
-							}
-						}}
-					>
-						Añadir un nuevo producto
-					</Button>
-				</Box>
-
-				<Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-					<ProductTable
-						products={productos.results}
-						onEdit={handleEditProducto}
-						rowcount={productos.count}
-						page={page}
-					/>
-				</Paper>
-
-				<Box sx={{
-					display: 'flex',
-					justifyContent: 'center',
-					gap: 2,
-					mt: 3
-				}}>
-					<Button
-						variant="contained"
-						color="primary"
+						color=""
 						onClick={() => cambiarPagina(page - 1)}
 						disabled={!productos.previous}
 						sx={{
+							border: 1,
 							borderRadius: 2,
 							px: 4,
 							py: 1,
@@ -146,12 +152,19 @@ export default function GestionProductos() {
 						Anterior
 					</Button>
 
+					<Typography
+						align='center'
+					>
+						{displayPagination()}
+					</Typography>
+
 					<Button
 						variant="contained"
-						color="primary"
+						color=""
 						onClick={() => cambiarPagina(page + 1)}
 						disabled={!productos.next}
 						sx={{
+							border: 1,
 							borderRadius: 2,
 							px: 4,
 							py: 1,
@@ -163,6 +176,14 @@ export default function GestionProductos() {
 					</Button>
 				</Box>
 			</Box>
+
+
+			<ProductTable
+				products={productos.results}
+				onEdit={handleEditProducto}
+				rowcount={productos.count}
+				page={page}
+			/>
 
 			<Dialog open={open} onClose={() => { setOpen(false); setType('editar') }} maxWidth="sm" fullWidth >
 				<DialogTitle sx={{

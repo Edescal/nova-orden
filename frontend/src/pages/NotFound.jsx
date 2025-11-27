@@ -20,8 +20,8 @@ export default function NotFound() {
 
                 <h5 className='text-secondary my-4' >Lo sentimos, no pudimos encontrar la página que buscas. Puedes volver al inicio.</h5>
 
-                <Button variant='contained' onPointerUp={() => navigate('/')} className='fw-bold'>
-                    Regresar al inicio
+                <Button variant='contained' onPointerUp={() => navigate(-2)} className='fw-bold'>
+                    Regresar
                 </Button>
             </Container>
 

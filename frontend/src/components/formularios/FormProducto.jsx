@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useImperativeHandle, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useImperativeHandle, useState } from "react";
 import { get, post, put } from "../../utils/apiUtils";
 import { TextField, Button, Select, MenuItem, InputLabel, InputAdornment, Typography, Box, IconButton, Icon, Switch } from '@mui/material'
 import DropZone from "./DropZone";
@@ -119,16 +119,16 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
         )
     })
 
-    const reset = () => {
+    const reset = useCallback(() => {
         setId(null)
         setNombre('')
         setDescripcion('')
         setPrecio(0)
-        setCategoria(null)
+        setCategoria('-1')
         setImagen('')
         setGrupos([])
         setVisible(false)
-    }
+    }, [])
 
     useImperativeHandle(ref, () => {
         return {

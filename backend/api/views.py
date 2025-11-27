@@ -1,4 +1,5 @@
 from django.db import transaction
+from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT, HTTP_200_OK
@@ -138,6 +139,30 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
         return Response('No se pudo actualizar el producto')
 
+    @action(detail=True, methods=['put'], url_path='update-visible')
+    def update_visible(self, request, pk=None):
+        with transaction.atomic():
+            try:
+                producto = self.get_object() #este es el real
+                visible = request.data.get('visible', None)
+                if visible is None:
+                    raise Exception('No se incluyó el atributo "visible" en los datos')
+                
+                producto.visible = visible
+                producto.save()
+
+                data = self.get_serializer(producto).data
+                return Response(
+                    data=data,
+                    status= HTTP_200_OK
+                )
+            except Exception as e:
+                transaction.set_rollback(True)
+                print(f'[API Error]: {e}')
+
+        return Response('No se pudo actualizar la visibilidad el producto', status=HTTP_406_NOT_ACCEPTABLE)
+
+
 
 
 class CategoriaViewSet(viewsets.ModelViewSet):
@@ -221,13 +246,18 @@ class ProductoWrapperViewSet(viewsets.ModelViewSet):
                     cantidad = request.data.get('cantidad', None),
                     anotacion = request.data.get('anotacion', None),
                 )
+
+                subtotal = wrapper.producto.precio
                 for opt_id in request.data.get('options', {}):
                     option = models.Option.objects.get(id = opt_id.get('id', None))
+                    subtotal += option.precio
                     opciones.append(serializers.OptionSerializer(option).data)
+
                 # generar un id temporal                
                 serialized_wrapper = self.get_serializer(wrapper).data
                 serialized_wrapper['opciones'] = opciones
                 serialized_wrapper['id'] = str(uuid.uuid4())
+                serialized_wrapper['subtotal'] = subtotal * request.data.get('cantidad')
 
                 return Response(
                     data=serialized_wrapper,
@@ -238,6 +268,8 @@ class ProductoWrapperViewSet(viewsets.ModelViewSet):
             finally:
                 transaction.set_rollback(True)
         return Response(status=HTTP_400_BAD_REQUEST)
+    
+
 
 
 def create_product_wrapper(data):
