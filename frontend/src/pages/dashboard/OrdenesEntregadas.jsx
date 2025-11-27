@@ -15,14 +15,13 @@ export default function OrdenesEntregadas() {
     const fetchOrdenes = async () => {
         const response = await AxiosInstance.get('/api/ordenes')
         if (response) {
+            console.log(response.data)
+            console.log(response.data.results)
+            console.log(response.data.results.filter(x => x.estado === 3))
             setOrdenes(response.data.results.filter(x => x.estado === 3) ?? [])
 
         }
     }
-
-    useEffect(() => {
-        console.log(ordenes)
-    }, [ordenes])
 
     return (
         <Template activeBtns={['terminadas']}>
