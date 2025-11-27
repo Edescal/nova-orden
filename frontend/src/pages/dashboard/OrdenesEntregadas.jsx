@@ -1,9 +1,9 @@
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
 import Template from './Template'
-import { get, patch } from '../../utils/apiUtils'
 import { useModal } from '../../context/ModalContext'
 import { Button, Card, CardActionArea, CardContent, Collapse } from '@mui/material'
 import { unixToDate } from '../../utils/unixToDate'
+import AxiosInstance from '../../context/AuthContext'
 
 export default function OrdenesEntregadas() {
     const [ordenes, setOrdenes] = useState([])
@@ -13,9 +13,9 @@ export default function OrdenesEntregadas() {
     }, [])
 
     const fetchOrdenes = async () => {
-        const data = await get('/api/ordenes')
-        if (data) {
-            setOrdenes(data.results.filter(x => x.estado === 3))
+        const response = await AxiosInstance.get('/api/ordenes')
+        if (response) {
+            setOrdenes(response.data.results.filter(x => x.estado === 3))
 
         }
     }
@@ -60,7 +60,7 @@ function OrdenRow({ orden, onEstadoChange }) {
 
     const patchOrden = useEffectEvent(async (estado) => {
         if (!orden || !orden.id) return
-        const res = await patch(`/api/ordenes/${orden.id}/`, {
+        const res = await AxiosInstance.patch(`/api/ordenes/${orden.id}/`, {
             "estado": estado
         })
         if (res) {

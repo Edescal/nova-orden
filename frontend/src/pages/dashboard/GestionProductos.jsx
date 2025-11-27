@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Template from './Template'
-import { get } from '../../utils/apiUtils'
 import ProductTable from './ProductTable'
 import FormProducto from '../../components/formularios/FormProducto'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography, Paper } from '@mui/material'
@@ -23,10 +22,10 @@ export default function GestionProductos() {
 	const cambiarPagina = async (value) => {
 		setPage(value)
 		if (value > page && productos.next) {
-			const data = await get(productos.next)
-			if (data) {
-				setProductos(data)
-				console.log(data)
+			const response = await AxiosInstance.get(productos.next)
+			if (response) {
+				setProductos(response.data)
+				console.log(response.data)
 			}
 		} else if (value < page && productos.previous) {
 			const data = await get(productos.previous)

@@ -4,8 +4,8 @@ import { numberToMoney } from '../utils/numberToMoney'
 import Dialog from './Dialog'
 import ButtonDark from './ButtonDark'
 import { useModal } from '../context/ModalContext'
-import { get } from '../utils/apiUtils'
 import ProductoCarrito from './ProductoCarrito'
+import AxiosInstance from '../context/AuthContext'
 
 export default function ItemCarrito() {
     const carrito = useCart()
@@ -13,9 +13,9 @@ export default function ItemCarrito() {
 
     useEffect(() => {
         (async () => {
-            const data = await get('/api/wrappers')
-            if (data.count > 0) {
-                console.log(data)
+            const response = await AxiosInstance.get('/api/wrappers')
+            if (response.count > 0) {
+                console.log(response.data)
             }
         })()
     }, [])

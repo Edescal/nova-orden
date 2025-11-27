@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { get } from '../../utils/apiUtils'
 import OrdenCard from './OrdenCard'
+import AxiosInstance from '../../context/AuthContext'
 
 export default function TableroOrdenes() {
     const [recibidas, setRecibidas] = useState([])
@@ -12,12 +12,12 @@ export default function TableroOrdenes() {
     }, [])
 
     const fetchOrdenes = async () => {
-        const data = await get('/api/ordenes/')
-        if (data) {
+        const response = await AxiosInstance.get('/api/ordenes/')
+        if (response) {
 
-            setRecibidas(data.results.filter(orden => orden.estado === 0))
-            setEnProceso(data.results.filter(orden => orden.estado === 1))
-            setListas(data.results.filter(orden => orden.estado === 2))
+            setRecibidas(response.data.results.filter(orden => orden.estado === 0))
+            setEnProceso(response.data.results.filter(orden => orden.estado === 1))
+            setListas(response.data.results.filter(orden => orden.estado === 2))
         }
     }
 

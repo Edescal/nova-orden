@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useEffectEvent, useImperativeHandle, useState } from "react";
-import { get, post, put } from "../../utils/apiUtils";
-import { TextField, Button, Select, MenuItem, InputLabel, InputAdornment, Typography, Box, IconButton, Icon, Switch } from '@mui/material'
+import { TextField, Button, Select, MenuItem, InputLabel, InputAdornment, Typography, Box, Switch } from '@mui/material'
 import DropZone from "./DropZone";
 import { CrossIcon } from "../../assets/CrossIcon";
 import noimgfound from '../../assets/noimgfound.jpg'
@@ -8,6 +7,7 @@ import '../../css/FormProducto.css'
 import { useModal } from "../../context/ModalContext";
 import { PlusIcon } from "../../assets/PlusIcon";
 import CrearOpciones from "./CrearOpciones";
+import AxiosInstance from "../../context/AuthContext";
 
 export default function FormProducto({ producto = null, onSubmit = null, ref = null }) {
     const modal = useModal()
@@ -28,9 +28,9 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
 
     useEffect(() => {
         (async () => {
-            const data = await get('/api/categorias')
-            if (data) {
-                const filter = data.results.map(({ id, nombre }) => ({ id, nombre }))
+            const response = await AxiosInstance. get('/api/categorias')
+            if (response) {
+                const filter = response.data.results.map(({ id, nombre }) => ({ id, nombre }))
                 setCategorias(filter)
             }
         })()

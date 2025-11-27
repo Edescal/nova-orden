@@ -1,6 +1,5 @@
 import { act, createContext, useCallback, useContext, useMemo, useReducer, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { get, post } from '../utils/apiUtils'
 import { Snackbar } from '@mui/material'
 import AxiosInstance from './AuthContext'
 

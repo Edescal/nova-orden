@@ -1,10 +1,10 @@
 import { Box, Button, ButtonBase, Card, CardActionArea, CardContent, CardHeader, Collapse } from '@mui/material'
 
 import React, { useEffect, useEffectEvent, useRef, useState } from 'react'
-import { get, patch } from '../../utils/apiUtils';
 import { useModal } from '../../context/ModalContext';
 import Template from './Template';
 import { unixToDate } from '../../utils/unixToDate';
+import AxiosInstance from '../../context/AuthContext';
 
 export default function Papelera() {
     const [ordenesEliminadas, setCanceladas] = useState([])
@@ -15,10 +15,9 @@ export default function Papelera() {
     }, [])
 
     const fetchOrdenes = async () => {
-        const data = await get('/api/ordenes/')
-        if (data) {
-
-            setCanceladas(data.results.filter(orden => orden.estado === 4))
+        const response = await AxiosInstance.get('/api/ordenes/')
+        if (response) {
+            setCanceladas(response.data.results.filter(orden => orden.estado === 4))
         }
     }
 
@@ -63,10 +62,10 @@ const OrdenEliminadaCard = ({ orden, onRestore, onDeletePermanent }) => {
     const cardRef = useRef()
 
     const patchOrden = useEffectEvent(async () => {
-        const res = await patch(`/api/ordenes/${orden.id}/`, {
+        const response = await AxiosInstance.patch(`/api/ordenes/${orden.id}/`, {
             "estado": 0
         })
-        if (res) {
+        if (response) {
             if (cardRef.current) {
                 cardRef.current.classList.add('card-close')
                 setTimeout(() => {

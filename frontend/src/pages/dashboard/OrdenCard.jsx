@@ -1,7 +1,7 @@
 import { useEffectEvent, useState, useEffect, useRef } from 'react'
 import noimgfound from '../../assets/noimgfound.jpg'
 import { useModal } from '../../context/ModalContext'
-import { patch } from '../../utils/apiUtils'
+import AxiosInstance from '../../context/AuthContext'
 
 export default function OrdenCard({ orden, onUpdate = null, nextParam = null, prevParam = null }) {
     const cardRef = useRef()
@@ -20,14 +20,14 @@ export default function OrdenCard({ orden, onUpdate = null, nextParam = null, pr
     })
 
     const patchOrden = useEffectEvent(async (estado) => {
-        const res = await patch(`/api/ordenes/${orden.id}/`, {
+        const response = await AxiosInstance.patch(`/api/ordenes/${orden.id}/`, {
             "estado": estado
         })
-        if (res) {
+        if (response) {
             if (cardRef.current) {
                 cardRef.current.classList.add('card-close')
                 setTimeout(() => {
-                    setData(res)
+                    setData(response.data)
                     onUpdate?.()
                 }, 500)
             }
