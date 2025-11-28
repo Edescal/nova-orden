@@ -67,15 +67,21 @@ class CategoriaSerializer(serializers.ModelSerializer):
         return serializer.data
 
 class ProductoSerializer(serializers.ModelSerializer):
+    imagen = serializers.SerializerMethodField()
+
+    option_groups = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Producto
         fields = '__all__'
         read_only_fields = ["id"]
 
-    option_groups = serializers.SerializerMethodField()
+    def get_imagen(self, producto:models.Producto):
+        # print(producto.imagen.name)
+        return f'https://nova-orden-bucket.s3.us-east-2.amazonaws.com/products/{producto.imagen.name}'
 
-    def get_option_groups(self, servicio:models.Producto):
-        serializer = OptionGroupSerializer(servicio.grupos.all(), many=True, context=self.context)
+    def get_option_groups(self, producto:models.Producto):
+        serializer = OptionGroupSerializer(producto.grupos.all(), many=True, context=self.context)
         return serializer.data
 
 

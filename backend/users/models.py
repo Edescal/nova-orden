@@ -7,6 +7,16 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 import uuid
 
+from storages.backends.s3 import S3File
+from storages.backends.s3boto3 import S3Boto3Storage
+
+class ProductoImgStorage(S3Boto3Storage):
+    location = 'products'
+
+class NegocioImgStorage(S3Boto3Storage):
+    location = 'business'
+
+
 def producto_img_path(instance, filename):
     return f'products/{instance.id or 'tmp'}/{filename}'
 
@@ -120,6 +130,7 @@ class Negocio(models.Model):
         null=True,  
         default=None,
         upload_to=banner_img_path,
+        storage=NegocioImgStorage,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg','jpeg','png','webp'])
         ]  
@@ -198,6 +209,7 @@ class Producto(models.Model):
         null=True,  
         default=None,
         upload_to=producto_img_path,
+        storage=ProductoImgStorage,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg','jpeg','png','webp'])
         ]

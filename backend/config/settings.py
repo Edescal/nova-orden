@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'whitenoise',
     "corsheaders",
+    'storages',
     'users',
     'api',
 ]
@@ -194,3 +195,19 @@ STATIC_URL = 'assets/'
 STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'dist' / 'assets' ]
 # Usar WhiteNoise para manejar archivos estáticos, los comprime para mejorar el rendimiento
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default='')
+AWS_SECRET_ACCESS_KEY = env("4gAZ64dpJjTb9Y8k8MDUCRlGYTD3gXoBpay+2c6H", default='')
+AWS_STORAGE_BUCKET_NAME = 'nova-orden-bucket'  # Nombre de tu bucket
+AWS_S3_REGION_NAME = 'us-east-2'  # Región del bucket
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_DEFAULT_ACL = None  # Para evitar que los archivos sean públicos por defecto
+AWS_S3_VERITY = True  
+
+# URL pública de acceso a los archivos
+MEDIA_URL = f'https://nova-orden-bucket.s3.us-east-2.amazonaws.com/'
+
+# Usar S3 para almacenar archivos de medios
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
