@@ -162,7 +162,9 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
         return Response('No se pudo actualizar la visibilidad el producto', status=HTTP_406_NOT_ACCEPTABLE)
 
-
+    # mejor no
+    # def update_imagen(self, request, pk=None):
+        # pass
 
 
 class CategoriaViewSet(viewsets.ModelViewSet):

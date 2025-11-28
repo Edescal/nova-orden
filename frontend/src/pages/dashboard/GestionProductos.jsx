@@ -14,6 +14,7 @@ export default function GestionProductos() {
 	const [productos, setProductos] = useState([])
 	const [page, setPage] = useState(1)
 	const [editProducto, setEditProducto] = useState(null)
+	const [disablePaginationButtons, setDisablePaginationButtons] = useState(false)
 
 	useEffect(() => {
 		fetchProductos()
@@ -22,17 +23,21 @@ export default function GestionProductos() {
 	const cambiarPagina = async (value) => {
 		setPage(value)
 		if (value > page && productos.next) {
+			setDisablePaginationButtons(true)
 			const response = await AxiosInstance.get(productos.next)
 			if (response) {
 				setProductos(response.data)
 				console.log(response.data)
 			}
+			setDisablePaginationButtons(false)
 		} else if (value < page && productos.previous) {
 			const response = await AxiosInstance.get(productos.previous)
+			setDisablePaginationButtons(true)
 			if (response) {
 				setProductos(response.data)
 				console.log(response.data)
 			}
+			setDisablePaginationButtons(false)
 		}
 	}
 
@@ -89,21 +94,16 @@ export default function GestionProductos() {
 
 	return (
 		<Template activeBtns={['productos']}>
-
-			<Typography
-				variant='h4'
-			>
+			<Typography variant='h4'>
 				Gestión de productos
 			</Typography>
-
-			<Box
-				sx={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					width: '100%',
-					padding: 2
-				}}>
+			<Box sx={{
+				display: 'flex',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+				width: '100%',
+				padding: 2
+			}}>
 				<Button
 					startIcon={<PlusIcon />}
 					variant="contained"
@@ -125,20 +125,19 @@ export default function GestionProductos() {
 				>
 					Añadir un nuevo producto
 				</Button>
-				<Box
-					sx={{
-						flex: 3,
-						display: 'flex',
-						justifyContent: 'right',
-						alignItems: 'center',
-						width: '100%',
-						gap: 2,
-					}}>
+				<Box sx={{
+					flex: 3,
+					display: 'flex',
+					justifyContent: 'right',
+					alignItems: 'center',
+					width: '100%',
+					gap: 2,
+				}}>
 					<Button
 						variant="contained"
 						color=""
 						onClick={() => cambiarPagina(page - 1)}
-						disabled={!productos.previous}
+						disabled={!productos.previous || disablePaginationButtons}
 						sx={{
 							border: 1,
 							borderRadius: 2,
@@ -151,9 +150,7 @@ export default function GestionProductos() {
 						Anterior
 					</Button>
 
-					<Typography
-						align='center'
-					>
+					<Typography align='center'>
 						{displayPagination()}
 					</Typography>
 
@@ -161,7 +158,7 @@ export default function GestionProductos() {
 						variant="contained"
 						color=""
 						onClick={() => cambiarPagina(page + 1)}
-						disabled={!productos.next}
+						disabled={!productos.next || disablePaginationButtons}
 						sx={{
 							border: 1,
 							borderRadius: 2,

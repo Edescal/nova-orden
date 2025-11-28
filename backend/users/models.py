@@ -5,9 +5,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-import uuid
 
-from storages.backends.s3 import S3File
+from django.conf import settings
+import uuid, boto3
+
 from storages.backends.s3boto3 import S3Boto3Storage
 
 class ProductoImgStorage(S3Boto3Storage):
@@ -233,8 +234,30 @@ class Producto(models.Model):
         MinLengthValidator(1, message='La descripción del producto no puede estar vacía')(self.descripcion)
         MaxLengthValidator(128, message='La descripción del producto es demasiado larga')(self.descripcion)
         MinValueValidator(0, message='El precio del producto no puede ser negativo')(self.precio)
+        if self.pk:
+            instancia_existente = Producto.objects.get(pk=self.pk)
+            if instancia_existente.imagen and instancia_existente.imagen != self.imagen:
+                self.del_previous_image()    
         return super().clean()
-
+    
+    def del_previous_image(self):
+        if self.imagen:
+            try:
+                s3_client = boto3.client(
+                    's3',
+                    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                    region_name=settings.AWS_S3_REGION_NAME
+                )
+                s3_client.delete_object(
+                    Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                    Key=self.imagen
+                )
+                print(f'Imagen antigua eliminada de {self.name} [{self.id}]')
+            except Exception as e:                
+                print(f'Error al eliminar la imagen de S3: {e}')
+                raise ValidationError("No se pudo eliminar la imagen antigua de S3.")
+    
     def __str__(self):
         return f'{self.nombre}: {self.descripcion}'
 

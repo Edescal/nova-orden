@@ -11,7 +11,6 @@ import AxiosInstance from "../../context/AuthContext";
 
 export default function FormProducto({ producto = null, onSubmit = null, ref = null }) {
     const modal = useModal()
-
     const NOMBRE_MAX_LENGTH = 64
     const DESCRIPCION_MAX_LENGTH = 128
 
@@ -25,10 +24,11 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
     const [grupos, setGrupos] = useState([])
     const [file, setFile] = useState(null)
     const [visible, setVisible] = useState(true)
+    const [previewURL, setPreviewURL] = useState('')
 
     useEffect(() => {
         (async () => {
-            const response = await AxiosInstance. get('/api/categorias')
+            const response = await AxiosInstance.get('/api/categorias')
             if (response) {
                 const filter = response.data.results.map(({ id, nombre }) => ({ id, nombre }))
                 setCategorias(filter)
@@ -48,6 +48,17 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
         setVisible(producto.visible)
     }, [producto])
 
+    useEffect(() => {
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = () => {
+                setPreviewURL(reader.result)
+            }
+            reader.readAsDataURL(file)
+        } else {
+            setPreviewURL(null)
+        }
+    }, [file])
 
     const addGroup = () => {
         setGrupos(
@@ -73,6 +84,9 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
         }))
     }
 
+    const handleFileUploaded = (file) => {
+        setFile(file)
+    }
 
     const validarDatos = () => {
         if (!nombre.trim()) {
@@ -92,7 +106,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
             return false;
         }
         return true;
-    };
+    }
 
     const handleSubmit = useEffectEvent(() => {
         if (!validarDatos()) {
@@ -144,7 +158,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
                     <div className="col-4 col-sm-3 d-flex align-items-center">
                         <div className="ratio ratio-1x1">
                             <img
-                                src={imagen ? imagen : noimgfound}
+                                src={previewURL ? previewURL : imagen ? imagen : noimgfound}
                                 alt="Preview del archivo"
                                 className="img-thumbnail w-100 h-100 object-fit-cover"
                             />
@@ -275,7 +289,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
 
                 <div className='mb-3'>
                     <InputLabel id="imagenLabel">Sube una fotografía del producto</InputLabel>
-                    <DropZone currentFile={file} onFileUploaded={(file) => setFile(file)} ></DropZone>
+                    <DropZone currentFile={file} onFileUploaded={handleFileUploaded} ></DropZone>
                     {
                         file ?
                             <div className='d-flex justify-content-end align-items-center gap-3 py-2'>
