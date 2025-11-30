@@ -34,9 +34,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    negocios = serializers.SerializerMethodField()
     class Meta:
         model = models.Usuario
         fields = '__all__'
+
+    def get_negocios(self, usuario):
+        if usuario.pk:
+            serializer = NegocioSerializer(usuario.negocios.all(), many=True, context=self.context)
+            return serializer.data
+        return None
 
 class NegocioSerializer(serializers.ModelSerializer):
     categorias = serializers.SerializerMethodField()

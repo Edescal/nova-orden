@@ -58,15 +58,6 @@ export default function Template({ children, activeBtns = [] }) {
                             </li>
                             <li className="text-center fw-semibold">Bienvenido de nuevo al panel de administración de tu negocio</li>
 
-{/* 
-                            <Link to={'/profile'}>
-                                <ButtonBase disabled={activeBtns.includes('profile')} className={`w-100 btn border border-3 rounded-3 text-white fs-5 fw-semibold p-2 px-3 ${sidebarOpen ? '' : 'd-none'}`}
-                                    sx={getButtonStyle('profile')}
-                                >
-                                    <span className="text-white fs-6 fw-semibold">Mi perfil</span>
-                                </ButtonBase>
-                            </Link> */}
-                            
                             <Link to={'/dashboard'}>
                                 <ButtonBase disabled={activeBtns.includes('tablero')} className={`w-100 btn border border-3 rounded-3 text-white fs-5 fw-semibold p-2 px-3 ${sidebarOpen ? '' : 'd-none'}`}
                                     sx={getButtonStyle('tablero')}
@@ -123,7 +114,7 @@ export default function Template({ children, activeBtns = [] }) {
                         </div>
                     </header>
 
-                    <main className="overflow-auto p-4 container-fluid">
+                    <main className="bg-body-secondary overflow-auto p-4 container-fluid">
                         {children}
                     </main>
                 </div>

@@ -1,12 +1,15 @@
 import TableroOrdenes from "./dashboard/TableroOrdenes";
 import Template from "./dashboard/Template";
+import TestTemplate from "./TestTemplate";
 
 export default function Dashboard() {
     return (
         <>
-            <Template activeBtns={['tablero']}>
+        <TestTemplate>
+            {/* <Template activeBtns={['tablero']}> */}
                 <TableroOrdenes></TableroOrdenes>
-            </Template>
+            {/* </Template> */}
+        </TestTemplate>
         </>
     );
 }

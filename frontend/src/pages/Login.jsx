@@ -17,7 +17,7 @@ export default function Login() {
 
     const handleSubmit = useEffectEvent(async (evt) => {
         evt.preventDefault();
-        let handleErrors ={
+        let handleErrors = {
             username: '',
             password: '',
         }
@@ -49,9 +49,14 @@ export default function Login() {
     });
 
     useEffect(() => {
-        if (auth.user) {
-            navigate('/dashboard');
-        }
+        (async () => {
+            const session = await auth.whoami()
+            if (session) {
+                navigate('/dashboard')
+            } else {
+                console.log(session)
+            }
+        })()
     }, [auth.user]);
 
     return (

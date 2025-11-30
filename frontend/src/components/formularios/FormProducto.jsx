@@ -128,7 +128,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
         console.log('Datos válidos:');
         console.log(Object.fromEntries(formData))
         modal.confirm(
-            <span>Estás a punto de modificar un producto, ¿estás de acuerdo?</span>,
+            <p className='text-center mb-2'>Estás a punto de modificar un producto, ¿estás de acuerdo?</p>,
             () => onSubmit?.(formData)
         )
     })

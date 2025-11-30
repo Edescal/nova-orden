@@ -7,6 +7,7 @@ const ModalContext = createContext([])
 export const useModal = () => useContext(ModalContext)
 
 export default function ModalProvider({ children }) {
+
     const [content, setContent] = useState([])
     const [onConfirmCallback, setOnConfirCallback] = useState([])
     const [onCancelCallback, setOnCancelCallback] = useState([])
@@ -25,7 +26,6 @@ export default function ModalProvider({ children }) {
         dialog.current?.close()
         if (onCancelCallback) {
             onCancelCallback()
-            console.log('mierdaaa')
         }
         setOpen(false)
     }
@@ -50,7 +50,7 @@ export default function ModalProvider({ children }) {
             <dialog ref={dialog} id="modal">
                 <div className="card d-flex flex-column p-3" style={{ width: "clamp(300px, 20rem, 500px)" }} >
                     <div>
-                        <button className='btn btn-close' onClick={handleCancel}></button>
+                        <button className='btn btn-close' onClick={handleCancel} tabIndex={-1}></button>
                     </div>
                     <div className="card-body">
                         {content ?? <span>¿Confirmar acción?</span>}

@@ -165,7 +165,7 @@ class Categoria(models.Model):
         null=False,
         blank=False,
         default='Nueva categoría',
-        max_length=64,
+        max_length=48,
     )
     negocio = models.ForeignKey(
         Negocio,

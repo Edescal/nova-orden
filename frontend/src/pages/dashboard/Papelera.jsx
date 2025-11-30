@@ -5,6 +5,7 @@ import { useModal } from '../../context/ModalContext';
 import Template from './Template';
 import { unixToDate } from '../../utils/unixToDate';
 import AxiosInstance from '../../context/AuthContext';
+import TestTemplate from '../TestTemplate';
 
 export default function Papelera() {
     const [ordenesEliminadas, setCanceladas] = useState([])
@@ -27,7 +28,7 @@ export default function Papelera() {
 
 
     return (
-        <Template activeBtns={['papelera']}>
+        <TestTemplate>
             <div className="container my-4">
                 <h3 className="mb-3">Historial de Órdenes Eliminadas</h3>
                 <div className="row">
@@ -52,7 +53,9 @@ export default function Papelera() {
                     </div>
                 </div>
             </div>
-        </Template>
+        </TestTemplate>
+        // <Template activeBtns={['papelera']}>
+        // </Template>
     )
 }
 

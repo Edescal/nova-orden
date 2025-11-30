@@ -16,25 +16,26 @@ import Test from './pages/Test'
 import ProtectedRoute from './protected/ProtectedRoute'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
+import TestTemplate from './pages/TestTemplate'
 
 function App() {
 	return (
 		<Routes>
 			<Route path='/' element={<Home />} />
 			<Route path='/home' element={<Home />} />
-			<Route path='/:slug/menu' element={<Menu></Menu>} />
+			<Route path='/:slug/menu' element={<Menu />} />
 
 			<Route path='/success' element={<Success />} />
 			<Route path='/login' element={<Login />} />
 			<Route path='/register' element={<Register />} />
 
-			<Route element={<ProtectedRoute />} >
+			<Route element={<ProtectedRoute  />} >
 				<Route path='/dashboard' element={<Dashboard />} />
 				<Route path='/ordenes-entregadas' element={<OrdenesEntregadas />} />
 				<Route path='/productos' element={<GestionProductos />} />
 				<Route path='/papelera' element={<Papelera />} />
+				<Route path='/test' element={<Test />} />
 			</Route>
-			<Route path='/test' element={<Test />} />
 
 			<Route path="*" element={<Navigate to='/not-found' />} />
 			<Route path="/not-found" element={<NotFound />} />

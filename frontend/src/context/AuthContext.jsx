@@ -39,14 +39,16 @@ AxiosInstance.interceptors.response.use(
                 const refreshRes = await axios.post(`${URL_BASE}/api/refresh/`, {
                     refresh: localStorage.getItem("refresh") ?? null,
                 })
-                console.log(refreshRes)
+                
                 const newToken = refreshRes.data.access_token;
                 const originalRequest = error.config;
-                originalRequest.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+                originalRequest.headers = originalRequest.headers || {}
+                originalRequest.headers['Authorization'] = `Bearer ${newToken}`
                 return await axios(originalRequest)
 
             } catch (refreshError) {
                 console.log('Falló el intento de refresh')
+                localStorage.clear()
                 return await Promise.reject(refreshError);
             }
         }
@@ -91,6 +93,8 @@ export const AuthProvider = ({ children }) => {
 
             if (!(access && refresh)) {
                 console.log('No haz iniciado sesión')
+                localStorage.removeItem('access')
+                localStorage.removeItem('refresh')
                 return
             }
 
@@ -115,7 +119,7 @@ export const AuthProvider = ({ children }) => {
         const access = localStorage.getItem('access') ?? false
         if (!access) {
             console.log('No haz iniciado sesión')
-            return
+            return false
         }
 
         try {

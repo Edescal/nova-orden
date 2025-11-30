@@ -4,6 +4,7 @@ import { useModal } from '../../context/ModalContext'
 import { Button, Card, CardActionArea, CardContent, Collapse } from '@mui/material'
 import { unixToDate } from '../../utils/unixToDate'
 import AxiosInstance from '../../context/AuthContext'
+import TestTemplate from '../TestTemplate'
 
 export default function OrdenesEntregadas() {
     const [ordenes, setOrdenes] = useState([])
@@ -24,8 +25,8 @@ export default function OrdenesEntregadas() {
     }
 
     return (
-        <Template activeBtns={['terminadas']}>
-            <main className="container my-4">
+        <TestTemplate>
+            <div className="container my-4">
                 <h3 className="mb-3">Historial de Órdenes Entregadas</h3>
 
                 {ordenes.length > 0 ? ordenes.map((orden) => (
@@ -47,8 +48,10 @@ export default function OrdenesEntregadas() {
                         </div>
                     </div>
                 }
-            </main>
-        </Template>
+            </div>
+        </TestTemplate>
+        // <Template activeBtns={['terminadas']}>
+        // </Template>
     )
 }
 

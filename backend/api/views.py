@@ -3,10 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE, HTTP_205_RESET_CONTENT, HTTP_200_OK
-from rest_framework import viewsets, permissions, authentication
+from rest_framework import viewsets, permissions
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse, HttpResponse
 from django.middleware.csrf import get_token
@@ -162,15 +164,24 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
         return Response('No se pudo actualizar la visibilidad el producto', status=HTTP_406_NOT_ACCEPTABLE)
 
-    # mejor no
-    # def update_imagen(self, request, pk=None):
-        # pass
-
-
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = models.Categoria.objects.all().order_by("id")
     serializer_class = serializers.CategoriaSerializer
     permission_classes = [permissions.AllowAny] 
+
+    # def update(self, request):
+    #     with transaction.atomic():
+    #         try:
+    #             print(request.data)
+
+    #             return JsonResponse(
+    #                 data=request.data,
+    #                 status= HTTP_201_CREATED
+    #             )
+    #         except Exception as e:
+    #             transaction.set_rollback(True)
+    #             print(f'[API Error]: {e}')
+    #     return Response('No se creó la categoría', status=HTTP_400_BAD_REQUEST)
 
 class OrdenViewSet(viewsets.ModelViewSet):
     queryset = models.Orden.objects.all().order_by("id")
@@ -271,8 +282,6 @@ class ProductoWrapperViewSet(viewsets.ModelViewSet):
                 transaction.set_rollback(True)
         return Response(status=HTTP_400_BAD_REQUEST)
     
-
-
 
 def create_product_wrapper(data):
     wrapper = models.ProductoWrapper.objects.create(
@@ -379,7 +388,7 @@ def jwt_logout(request):
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
-@authentication_classes([authentication.TokenAuthentication])
+@authentication_classes([JWTAuthentication])
 def create_post(request):
     data = None
     if request.user.is_authenticated:
