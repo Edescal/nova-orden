@@ -162,16 +162,12 @@ class ProductoViewSet(viewsets.ModelViewSet):
                 data = self.get_serializer(updated_product).data
                 transaction.set_rollback(False)
 
-                """----------------------------------------------------"""
+                # Websocket
                 channel_layer = get_channel_layer()
-                message = {
-                    "type": "actualizacion_modelo",
-                    "message": f"El modelo {updated_product.nombre} ha sido actualizado."
-                }
-                async_to_sync(channel_layer.group_send)(
-                    "chat_test_room",
-                    message
-                )
+                channel_layer.group_send('mi_evento', {
+                    'type': 'send_event',  # Método que usaremos en el Consumer para enviar el evento
+                    'message': 'Actualización'  # El mensaje que se enviará al WebSocket
+                })
 
                 return Response(
                     data=data,
