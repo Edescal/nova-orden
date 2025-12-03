@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
     'whitenoise',
+    'channels',
     "corsheaders",
     'storages',
     'users',
@@ -96,6 +97,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+ASGI_APPLICATION = 'config.asgi.application'  # Cambia 'myproject' por el nombre de tu proyecto
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 LOGIN_URL = '/login/' 
 LOGIN_REDIRECT_URL = '/dashboard/'

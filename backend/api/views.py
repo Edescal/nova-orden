@@ -17,6 +17,10 @@ from users import models
 from . import serializers
 import json, uuid
 
+
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 class NegocioViewSet(viewsets.ModelViewSet):
     queryset = models.Negocio.objects.all().order_by("uuid")
     serializer_class = serializers.NegocioSerializer
@@ -157,6 +161,18 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
                 data = self.get_serializer(updated_product).data
                 transaction.set_rollback(False)
+
+                """----------------------------------------------------"""
+                channel_layer = get_channel_layer()
+                message = {
+                    "type": "actualizacion_modelo",
+                    "message": f"El modelo {updated_product.nombre} ha sido actualizado."
+                }
+                async_to_sync(channel_layer.group_send)(
+                    "chat_test_room",
+                    message
+                )
+
                 return Response(
                     data=data,
                     status= HTTP_201_CREATED

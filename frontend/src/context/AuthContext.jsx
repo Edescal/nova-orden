@@ -42,8 +42,8 @@ AxiosInstance.interceptors.response.use(
 
                 console.log(refreshRes);
                 if (refreshRes.status === 200) {
-                    localStorage.setItem('access', res.data.access)
-                    localStorage.setItem('refresh', res.data.refresh)
+                    localStorage.setItem('access', refreshRes.data.access)
+                    localStorage.setItem('refresh', refreshRes.data.refresh)
                 }
                 
                 const newToken = refreshRes.data.access;

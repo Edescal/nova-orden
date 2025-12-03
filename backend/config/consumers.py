@@ -1,33 +1,22 @@
-# myapp/consumers.py
-import json
+# consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
-import socketio
-
-# Crea la instancia de Socket.IO
-sio = socketio.AsyncServer(async_mode="asgi")
-sio_app = socketio.ASGIApp(sio)
+import json
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # Código para manejar la conexión de WebSocket
-        self.room_name = "test_room"
-        self.room_group_name = f"chat_{self.room_name}"
-
-        # Aceptamos la conexión
+        # Aceptar la conexión WebSocket
         await self.accept()
 
-    async def disconnect(self, close_code):
-        # Código para manejar la desconexión de WebSocket
-        pass
-
-    async def receive(self, text_data):
-        # Código para recibir un mensaje del WebSocket
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-
-        # Emitir el mensaje a todos los usuarios conectados en el room
+        # Enviar un mensaje inmediatamente después de la conexión
         await self.send(text_data=json.dumps({
-            "message": message
+            'message': '¡Conexión establecida correctamente!'
         }))
 
-# Se puede hacer más lógico, como la interacción con los eventos de Socket.IO si es necesario.
+    async def disconnect(self, close_code):
+        # Esto se llama cuando el WebSocket se cierra
+        pass
+
+    # Este método no es necesario si solo vas a enviar un evento sin datos adicionales
+    async def receive(self, text_data):
+        # Aquí no estamos haciendo nada con los datos recibidos
+        pass

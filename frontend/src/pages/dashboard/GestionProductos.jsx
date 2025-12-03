@@ -13,7 +13,33 @@ import noimgfound from '../../assets/noimgfound.jpg'
 import { Link } from 'react-router-dom'
 import ProductoChart from '../../components/charts/ProductoChart'
 
+
 export default function GestionProductos() {
+	useEffect(() => {
+		const socket = new WebSocket("ws://localhost:8000/ws/chat/");
+
+		socket.onopen = () => {
+			console.log('Conexión WebSocket establecida');
+		};
+
+		socket.onmessage = (event) => {
+			const data = JSON.parse(event.data);
+			console.log(data.message);  // Esto debería imprimir "¡Conexión establecida correctamente!"
+		};
+
+		socket.onerror = (error) => {
+			console.error('Error en WebSocket:', error);
+		};
+
+		socket.onclose = () => {
+			console.log('Conexión WebSocket cerrada');
+		};
+
+		return () => {
+			socket.close();  // Cerrar la conexión cuando el componente se desmonte
+		};
+	}, []);
+
 	const auth = useAuth()
 	const formRef = useRef()
 	const form = useRef() //form categorias
