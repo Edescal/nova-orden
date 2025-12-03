@@ -61,7 +61,7 @@ export default function DropZone({ currentFile = null, onFileUploaded = (file) =
             {
                 isDragActive ?
                     <span className='fw-semibold pe-none'>Suelta tu archivo aquí</span> :
-                    <span className='fw-semibold pe-none'>Arrastra un archivo o haz click para elegir un archivo.</span>
+                    <span className='fw-semibold pe-none'>Arrastra un archivo o haz click aquí.</span>
             }
             {
                 uploadedFile ?

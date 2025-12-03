@@ -23,6 +23,32 @@ class NegocioViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny] 
     parser_classes = [MultiPartParser, FormParser]
 
+    def update(self, request):
+        with transaction.atomic():
+            try:
+                negocio = self.get_object()
+                updated_business, _ = models.Negocio.objects.update_or_create(
+                    uuid=negocio.uuid,
+                    defaults={
+                        'nombre': request.data.get('nombre', negocio.nombre),
+                        'descripcion': request.data.get('descripcion', negocio.descripcion),
+                        'direccion': request.data.get('direccion', negocio.direccion),
+                        'telefono': request.data.get('telefono', negocio.telefono),
+                        'banner_img': request.FILES.get('banner_img', negocio.banner_img),
+                    }
+                )
+                data = self.get_serializer(updated_business).data
+                transaction.set_rollback(False)
+                return Response(
+                    data=data,
+                    status= HTTP_201_CREATED
+                )
+            except Exception as e:
+                transaction.set_rollback(True)
+                print(f'[API Error]: {e}')
+
+        return Response('No se pudo actualizar el producto')
+
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = models.Producto.objects.all().order_by("id")
     serializer_class = serializers.ProductoSerializer

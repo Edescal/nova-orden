@@ -6,9 +6,19 @@ import AxiosInstance from '../context/AuthContext'
 import '../css/Home.css'
 import { Box, Card, Paper } from '@mui/material'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css';
 
-const icon = L.icon({ iconUrl: "/marker-icon.png" });
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
 
 export default function Home() {
 	const navigate = useNavigate()
@@ -41,13 +51,13 @@ export default function Home() {
 				<Paper elevation={3} sx={{ margin: 2, borderRadius: 6 }} >
 					<Card variant="outlined" elevation={5} sx={{ borderRadius: 6 }}>
 						<MapContainer center={coordenadas} zoom={15} scrollWheelZoom={false}
-							style={{ height: 150, width: '100%' }}
+							style={{ height: 250, width: '100%' }}
 						>
 							<TileLayer
 								url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 								attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 							/>
-							<Marker position={coordenadas} iconUrl={icon}>
+							<Marker position={coordenadas} >
 								<Popup>
 									Progreso, Yucatán<br /> Busca restaurantes en tu zona.
 								</Popup>

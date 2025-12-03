@@ -46,12 +46,16 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return None
 
 class NegocioSerializer(serializers.ModelSerializer):
+    banner_img = serializers.SerializerMethodField()
     categorias = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Negocio
         fields = '__all__'
         read_only_fields = ["id"]
+
+    def get_banner_img(self, negocio:models.Negocio):
+        return f'https://nova-orden-bucket.s3.us-east-2.amazonaws.com/business/{negocio.banner_img.name}'
 
     def get_categorias(self, negocio: models.Negocio):
         if negocio.pk:

@@ -22,7 +22,7 @@ def producto_img_path(instance, filename):
     return f'products/{instance.id or 'tmp'}/{filename}'
 
 def banner_img_path(instance, filename):
-    return f'business/banner/{instance.uuid or 'tmp'}/{filename}'
+    return f'business/{instance.uuid or 'tmp'}/{filename}'
 
 # region Usuarios 
 class CustomUsuarioManager(BaseUserManager):

@@ -158,7 +158,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
                     <div className="col-4 col-sm-3 d-flex align-items-center">
                         <div className="ratio ratio-1x1">
                             <img
-                                src={previewURL ? previewURL : imagen ? imagen : noimgfound}
+                                src={previewURL || imagen ? imagen : noimgfound}
                                 alt="Preview del archivo"
                                 className="img-thumbnail w-100 h-100 object-fit-cover"
                             />

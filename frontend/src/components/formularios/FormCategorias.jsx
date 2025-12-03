@@ -72,7 +72,6 @@ export default function FormCategorias({ categoria = null, onSubmit = null, ref 
                     </Box>
                 </div>
             </div>
-
         </form>
     )
 }

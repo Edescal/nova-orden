@@ -39,11 +39,15 @@ AxiosInstance.interceptors.response.use(
                 const refreshRes = await axios.post(`${URL_BASE}/api/refresh/`, {
                     refresh: localStorage.getItem("refresh") ?? null,
                 })
+
+                console.log(refreshRes)
                 
-                const newToken = refreshRes.data.access_token;
+                const newToken = refreshRes.data.access;
                 const originalRequest = error.config;
                 originalRequest.headers = originalRequest.headers || {}
                 originalRequest.headers['Authorization'] = `Bearer ${newToken}`
+
+                
                 return await axios(originalRequest)
 
             } catch (refreshError) {
