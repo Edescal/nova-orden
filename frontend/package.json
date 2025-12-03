@@ -26,6 +26,7 @@
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.4",
     "react-router-hash-link": "^2.4.3",
+    "socket.io-client": "^4.8.1",
     "universal-cookie": "^8.0.1"
   },
   "devDependencies": {

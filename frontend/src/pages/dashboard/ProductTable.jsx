@@ -4,8 +4,10 @@ import { Box, Button, IconButton, Switch, Table, TableBody, TableCell, TableCont
 import { numberToMoney } from '../../utils/numberToMoney';
 import { useEffect, useState } from 'react';
 import AxiosInstance from '../../context/AuthContext';
+import { useModal } from '../../context/ModalContext';
 
 const ProductTable = ({ products = [], categorias = [], onEdit = null, onDelete = null }) => {
+    const modal = useModal()
 
     const convertCategoria = (id) => {
         if (!categorias || categorias.length === 0) return 'No definido'
@@ -36,7 +38,15 @@ const ProductTable = ({ products = [], categorias = [], onEdit = null, onDelete 
     const handleDelete = (producto) => {
         if (producto) {
             console.log('Eliminando: ', producto.nombre)
-            onDelete?.(producto)
+            modal.confirm(
+                <div className="text-center">
+                    <p className="mt-3 mb-1">¿Quieres eliminar el producto <strong>{producto.nombre}</strong>? Esta acción es irreversible.</p>
+                </div>,
+                () => {
+                    console.log('Eliminando: ', producto.nombre)
+                    onDelete?.(producto)
+                }
+            )
         }
     }
 
@@ -59,7 +69,10 @@ const ProductTable = ({ products = [], categorias = [], onEdit = null, onDelete 
                         <TableRow key={producto.id}>
                             <TableCell>{producto.id}</TableCell>
                             <TableCell>
-                                <img src={producto.imagen ?? noimgfound} alt="Producto" style={{ width: '50px', height: '100%' }} />
+                                <div className='ratio ratio-1x1'>
+
+                                <img src={producto.imagen || noimgfound} alt="Producto"  />
+                                </div>
                             </TableCell>
                             <TableCell>{producto.nombre}</TableCell>
                             <TableCell>{numberToMoney(producto.precio)}</TableCell>

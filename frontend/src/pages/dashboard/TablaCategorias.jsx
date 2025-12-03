@@ -1,7 +1,9 @@
 import { Box, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import React from 'react'
+import { useModal } from '../../context/ModalContext'
 
 export default function TablaCategorias({ categorias = [], onEdit = null, onDelete = null }) {
+    const modal = useModal()
 
     const handleEdit = (categoria) => {
         if (categoria) {
@@ -12,13 +14,20 @@ export default function TablaCategorias({ categorias = [], onEdit = null, onDele
 
     const handleDelete = (categoria) => {
         if (categoria) {
-            console.log('Eliminando: ', categoria.nombre)
-            onDelete?.(categoria)
+            modal.confirm(
+                <div className="text-center">
+                    <p className="mt-3 mb-1">¿Quieres eliminar la categoría <strong>{categoria.nombre}</strong>? Esta acción es irreversible.</p>
+                </div>,
+                () => {
+                    console.log('Eliminando: ', categoria.nombre)
+                    onDelete?.(categoria)
+                }
+            )
         }
     }
 
     return (
-        <TableContainer component={Paper} elevation={2} style={{ overflowX: 'auto' }}>
+        <TableContainer component={Paper} elevation={2} style={{ overflowX: 'auto', overflowY: 'hidden' }}>
             <Table>
                 <TableHead>
                     <TableRow>

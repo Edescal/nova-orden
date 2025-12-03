@@ -55,6 +55,8 @@ class NegocioSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def get_banner_img(self, negocio:models.Negocio):
+        if negocio.banner_img.name == '': 
+            return ''
         return f'https://nova-orden-bucket.s3.us-east-2.amazonaws.com/business/{negocio.banner_img.name}'
 
     def get_categorias(self, negocio: models.Negocio):
@@ -88,7 +90,8 @@ class ProductoSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def get_imagen(self, producto:models.Producto):
-        # print(producto.imagen.name)
+        if producto.imagen.name == '':
+            return ''
         return f'https://nova-orden-bucket.s3.us-east-2.amazonaws.com/products/{producto.imagen.name}'
 
     def get_option_groups(self, producto:models.Producto):

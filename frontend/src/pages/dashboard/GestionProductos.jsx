@@ -82,6 +82,7 @@ export default function GestionProductos() {
 			setPage(1)
 		}
 	}
+
 	const fetchCategorias = async () => {
 		const response = await AxiosInstance.get('/api/categorias')
 		if (response) {
@@ -120,6 +121,16 @@ export default function GestionProductos() {
 		console.log('Success')
 		fetchProductos()
 		setOpen(false)
+	}
+
+	const handleDeleteProducto = async (producto) => {
+		console.log('Eliminar producto: ', producto.nombre)
+		const response = await AxiosInstance.delete(`/api/productos/${producto.id}/`)
+		if (response) {
+			console.log('Producto eliminado')
+			console.log(response)
+			fetchProductos()
+		}
 	}
 
 
@@ -167,6 +178,15 @@ export default function GestionProductos() {
 		}
 	}
 
+	const handleDeleteCategoria = async (categoria) => {
+		console.log('Eliminar categoría: ', categoria.nombre)
+		const response = await AxiosInstance.delete(`/api/categorias/${categoria.id}/`)
+		if (response) {
+			console.log('Categoría eliminada')
+			fetchCategorias()
+		}
+	}
+
 	// NEGOCIO
 	const btnResetNegocioForm = (evt) => {
 		evt.preventDefault()
@@ -204,7 +224,6 @@ export default function GestionProductos() {
 		}
 	}
 
-
 	return (
 		<TestTemplate>
 			<div className='d-flex flex-column'>
@@ -218,11 +237,12 @@ export default function GestionProductos() {
 				</Typography>
 
 
-				<Grid container spacing={3} sx={{ marginBottom: 3 }} >
-					<Grid size={{ xs: 12, md: 4 }} >
+				<Grid container spacing={3} sx={{ marginBottom: 3 }} alignItems={'stretch'}>
+					<Grid size={{ xs: 12, md: 4 }} flex={1} >
 						<Paper elevation={5} sx={{ padding: 3, borderRadius: 5, marginBottom: 1, height: '100%' }}>
 							<Box sx={{
 								display: 'flex',
+								flexFlow: 'row wrap',
 								justifyContent: 'space-between',
 								alignItems: 'center',
 								width: '100%',
@@ -260,7 +280,7 @@ export default function GestionProductos() {
 								<div className='col-5'>
 									<div className="ratio ratio-1x1">
 										<img
-											src={negocio ? negocio.banner_img : noimgfound}
+											src={negocio?.banner_img || noimgfound}
 											alt="Preview del archivo"
 											className="img-thumbnail w-100 h-100 object-fit-cover"
 										/>
@@ -307,20 +327,38 @@ export default function GestionProductos() {
 							</Dialog>
 						</Paper>
 					</Grid>
-					<Grid size={{ xs: 12, md: 8 }} >
+
+					<Grid size={{ xs: 12, md: 4 }} flex={1}>
 						<Paper elevation={5} sx={{ padding: 3, paddingBottom: 1, borderRadius: 5, marginBottom: 1, height: '100%' }}>
 							<Typography variant='h4' sx={{
-								flex: 2, marginBottom: 2,
+								flex: 2,
+								flexFlow: 'row wrap',
+								marginBottom: 2,
 							}}>
 								Productos más vendidos
 							</Typography>
 							<ProductoChart></ProductoChart>
 						</Paper>
 					</Grid>
+
+					<Grid size={{ xs: 12, md: 4 }} flex={1}>
+						<Paper elevation={5} sx={{ padding: 3, paddingBottom: 1, borderRadius: 5, marginBottom: 1, height: '100%' }}>
+							<Typography variant='h4' sx={{
+								flex: 2,
+								flexFlow: 'row wrap',
+								marginBottom: 2,
+							}}>
+								Número de órdenes actuales
+							</Typography>
+							<Typography variant='body1'>
+								3434
+							</Typography>
+						</Paper>
+					</Grid>
 				</Grid>
 
 				<Grid container spacing={3} >
-					<Grid size={{ xs: 12, md: 8 }} >
+					<Grid size={{ xs: 12, md: 7 }} >
 						<Paper elevation={5} sx={{ padding: 2, borderRadius: 5, marginBottom: 1 }}>
 							<Box sx={{
 								display: 'flex',
@@ -409,6 +447,7 @@ export default function GestionProductos() {
 								products={productos.results}
 								categorias={categorias.results}
 								onEdit={handleEditProducto}
+								onDelete={handleDeleteProducto}
 								rowcount={productos.count}
 								page={page}
 							/>
@@ -440,7 +479,7 @@ export default function GestionProductos() {
 						</Paper>
 					</Grid>
 
-					<Grid size={{ xs: 12, md: 4 }} gap={3}>
+					<Grid size={{ xs: 12, md: 5 }} flex={1}>
 						<Paper elevation={5} sx={{ padding: 2, borderRadius: 5, }}>
 							<Box sx={{
 								display: 'flex',
@@ -477,7 +516,7 @@ export default function GestionProductos() {
 								</Button>
 							</Box>
 
-							<TablaCategorias categorias={categorias.results} onEdit={(categoria) => { setEditCategoria(categoria); setOpenCategoria(true) }} />
+							<TablaCategorias categorias={categorias.results} onDelete={handleDeleteCategoria} onEdit={(categoria) => { setEditCategoria(categoria); setOpenCategoria(true) }} />
 
 							<Dialog open={openCategoria} onClose={() => setOpenCategoria(false)} maxWidth="sm" >
 								<DialogTitle sx={{

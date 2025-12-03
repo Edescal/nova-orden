@@ -37,21 +37,25 @@ AxiosInstance.interceptors.response.use(
             try {
 
                 const refreshRes = await axios.post(`${URL_BASE}/api/refresh/`, {
-                    refresh: localStorage.getItem("refresh") ?? null,
+                    refresh: localStorage.getItem("refresh"),
                 })
 
-                console.log(refreshRes)
+                console.log(refreshRes);
+                if (refreshRes.status === 200) {
+                    localStorage.setItem('access', res.data.access)
+                    localStorage.setItem('refresh', res.data.refresh)
+                }
                 
                 const newToken = refreshRes.data.access;
+
                 const originalRequest = error.config;
                 originalRequest.headers = originalRequest.headers || {}
                 originalRequest.headers['Authorization'] = `Bearer ${newToken}`
 
-                
                 return await axios(originalRequest)
-
             } catch (refreshError) {
                 console.log('Falló el intento de refresh')
+                console.log(refreshError);
                 localStorage.clear()
                 return await Promise.reject(refreshError);
             }

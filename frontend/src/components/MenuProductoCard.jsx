@@ -12,7 +12,7 @@ export default function MenuProductoCard({ producto = null, onDetail = null }) {
             <div className='col-3 col-sm-3 col-md-1 d-flex align-items-center'>
                 <div className='ratio ratio-1x1' >
                     <img
-                        src={producto.imagen ?? noimgfound}
+                        src={producto.imagen || noimgfound}
                         alt={producto.nombre}
                         className="w-100 h-100 object-fit-cover rounded"
                     />

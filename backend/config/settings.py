@@ -34,11 +34,20 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://192.168.0.5:5173",
     "http://127.0.0.1:5173",
-    "http://192.168.0.5:5173", #mi PC
+    "http://192.168.0.5:5173",
 
 ]
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 CORS_ALLOW_ALL_HEADERS = True
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'x-requested-with',
+    'x-socket-id', 
+]
+
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     # 'http://*'

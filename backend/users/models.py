@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django.conf import settings
 import uuid, boto3
+from . import managers
 
 from storages.backends.s3boto3 import S3Boto3Storage
 
@@ -157,6 +158,8 @@ class Negocio(models.Model):
 
 # region Clases principales
 class Categoria(models.Model):
+    objects = managers.CategoriaManager()
+
     class Meta:
         db_table_comment = "Categorías de productos"
         db_table = "categoria"
@@ -173,11 +176,21 @@ class Categoria(models.Model):
         default='3c02f6c8b916424e9bd00cb1334b3de2',
         related_name='categorias'
     )
+    # borrado lógico
+    deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def delete(self):
+        self.deleted = True
+        self.deleted_at = timezone.now()
+        self.save()
 
     def __str__(self):
         return self.nombre
 
 class Producto(models.Model):
+    objects = managers.ProductoManager()
+
     class Meta:
         db_table_comment = "Productos del negocio"
         db_table = "producto"
@@ -227,7 +240,16 @@ class Producto(models.Model):
         default=None,
         related_name='productos'
     )
-    
+
+    # borrado lógico
+    deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    def delete(self):
+        self.deleted = True
+        self.deleted_at = timezone.now()
+        self.save()
+
     def clean(self):
         MinLengthValidator(1, message='El nombre del producto no puede estar vacío')(self.nombre)
         MaxLengthValidator(64, message='El nombre del producto es demasiado largo')(self.nombre)
