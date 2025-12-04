@@ -28,7 +28,7 @@ class NegocioViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny] 
     parser_classes = [MultiPartParser, FormParser]
 
-    def update(self, request):
+    def update(self, request, pk=None, partial=True):
         with transaction.atomic():
             try:
                 negocio = self.get_object()

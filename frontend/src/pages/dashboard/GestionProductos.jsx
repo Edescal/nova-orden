@@ -38,16 +38,7 @@ export default function GestionProductos() {
 	const formNegocio = useRef()
 
 	useEffect(() => {
-		(async () => {
-			const res = await auth.whoami()
-			if (res) {
-				console.log(res.data.user.negocios[0])
-				setNegocio(res.data.user.negocios[0] || null)
-			}
-		})()
-	}, [])
-
-	useEffect(() => {
+		fetchNegocio()
 		fetchProductos()
 		fetchCategorias()
 	}, [])
@@ -76,6 +67,14 @@ export default function GestionProductos() {
 		const max = ((page + 1) * 10) - 10
 		return `Mostrando ${min}-${max > productos.count ? productos.count : max} de ${productos.count}`
 	}, [page, productos])
+
+	const fetchNegocio = async () => {
+		const res = await auth.whoami()
+		if (res) {
+			console.log(res.data.user.negocios[0])
+			setNegocio(res.data.user.negocios[0] || null)
+		}
+	}
 
 	const fetchProductos = async () => {
 		const response = await AxiosInstance.get('/api/productos')
@@ -222,6 +221,9 @@ export default function GestionProductos() {
 		})
 		if (response) {
 			console.log(response)
+			console.log('Actualización exitosa');
+			setOpenNegocio(false)
+			fetchNegocio()
 		} else {
 			console.log('Error al actualizar el negocio')
 		}
@@ -241,7 +243,7 @@ export default function GestionProductos() {
 
 
 				<Grid container spacing={3} sx={{ marginBottom: 3 }} alignItems={'stretch'}>
-					<Grid size={{ xs: 12, sm: 12, md: 6, lg:4 }} flex={1} >
+					<Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} flex={1} >
 						<Paper elevation={5} sx={{ padding: 3, borderRadius: 5, marginBottom: 1, height: '100%' }}>
 							<Box sx={{
 								display: 'flex',
@@ -354,7 +356,7 @@ export default function GestionProductos() {
 								Últimas órdenes
 							</Typography>
 							<div className='overflow-scroll' style={{ maxHeight: '150px' }}>
-							<UltimasOrdenes />
+								<UltimasOrdenes />
 							</div>
 						</Paper>
 					</Grid>
