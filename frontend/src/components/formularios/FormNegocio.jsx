@@ -2,6 +2,7 @@ import React, { useEffect, useEffectEvent, useImperativeHandle } from 'react'
 import noimgfound from '../../assets/noimgfound.jpg'
 import DropZone from './DropZone'
 import { Box, CircularProgress, InputLabel, TextField, Typography } from '@mui/material'
+import { useModal } from '../../context/ModalContext'
 
 const NOMBRE_MAX_LENGTH = 64
 const DESCRIPCION_MAX_LENGTH = 128
@@ -9,6 +10,7 @@ const DIRECCION_MAX_LENGTH = 128
 const TELEFONO_MAX_LENGTH = 10
 
 export default function FormNegocio({ negocio = null, onSubmit = null, ref }) {
+    const modal = useModal()
     const [nombre, setNombre] = React.useState(negocio ? negocio.nombre : '')
     const [descripcion, setDescripcion] = React.useState(negocio ? negocio.descripcion : '')
     const [direccion, setDireccion] = React.useState(negocio ? negocio.direccion : '')
@@ -56,14 +58,18 @@ export default function FormNegocio({ negocio = null, onSubmit = null, ref }) {
             return false;
         }
 
-        onSubmit?.({
-            pk: negocio ? negocio.uuid : null,
-            nombre,
-            descripcion,
-            direccion,
-            telefono,
-            banner_img: file,
-        })
+        modal.confirm(
+            <p className='text-center mb-2'>¿Estás seguro de crear una nueva categoría?</p>,
+            () => onSubmit?.({
+                pk: negocio ? negocio.uuid : null,
+                nombre,
+                descripcion,
+                direccion,
+                telefono,
+                banner_img: file,
+            })
+        )
+
     })
     const handleReset = () => {
         setNombre('')

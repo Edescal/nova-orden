@@ -26,6 +26,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
     const [visible, setVisible] = useState(true)
     const [previewURL, setPreviewURL] = useState('')
 
+
     useEffect(() => {
         (async () => {
             const response = await AxiosInstance.get('/api/categorias')
@@ -56,7 +57,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
             }
             reader.readAsDataURL(file)
         } else {
-            setPreviewURL(null)
+            setPreviewURL(producto.imagen || noimgfound)
         }
     }, [file])
 
@@ -158,7 +159,7 @@ export default function FormProducto({ producto = null, onSubmit = null, ref = n
                     <div className="col-4 col-sm-3 d-flex align-items-center">
                         <div className="ratio ratio-1x1">
                             <img
-                                src={previewURL || imagen ? imagen : noimgfound}
+                                src={previewURL || noimgfound}
                                 alt="Preview del archivo"
                                 className="img-thumbnail w-100 h-100 object-fit-cover"
                             />
