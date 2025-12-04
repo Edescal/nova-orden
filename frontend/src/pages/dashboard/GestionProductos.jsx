@@ -24,7 +24,10 @@ export default function GestionProductos() {
 
 		socket.onmessage = (event) => {
 			const data = JSON.parse(event.data);
-			console.log(data.message);  // Esto debería imprimir "¡Conexión establecida correctamente!"
+			console.log("Mensaje recibido:", data);
+			if (data.event) {
+				alert(data.event); 
+			}
 		};
 
 		socket.onerror = (error) => {

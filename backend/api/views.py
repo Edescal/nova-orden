@@ -17,7 +17,6 @@ from users import models
 from . import serializers
 import json, uuid
 
-
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -163,11 +162,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
                 transaction.set_rollback(False)
 
                 # Websocket
-                channel_layer = get_channel_layer()
-                channel_layer.group_send('mi_evento', {
-                    'type': 'send_event',  # Método que usaremos en el Consumer para enviar el evento
-                    'message': 'Actualización'  # El mensaje que se enviará al WebSocket
-                })
+                self.send_event_to_websocket('¡El producto ha sido actualizado!')
 
                 return Response(
                     data=data,
@@ -201,6 +196,14 @@ class ProductoViewSet(viewsets.ModelViewSet):
                 print(f'[API Error]: {e}')
 
         return Response('No se pudo actualizar la visibilidad el producto', status=HTTP_406_NOT_ACCEPTABLE)
+
+    # @database_sync_to_async
+    def send_event_to_websocket(self, message):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)('grupo',{
+            'type': 'send_event',
+            'message': message 
+        })
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = models.Categoria.objects.all().order_by("id")

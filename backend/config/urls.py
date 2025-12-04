@@ -30,10 +30,5 @@ urlpatterns = [
 urlpatterns += [
     re_path(r"^(?!api/|media/|static/|ws/).*", TemplateView.as_view(template_name="index.html")),
 ]
-
-# urlpatterns += [    
-#     path('ws/chat/', consumers.MyConsumer.as_asgi()),  # La ruta de tu WebSocket
-# ]
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

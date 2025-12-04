@@ -14,20 +14,20 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
-from .consumers import MyConsumer  # Asegúrate de importar tu consumer
+from .consumers import CrudNotifier, OrdenNotifier
 from django.urls import re_path 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 # application = get_asgi_application()
 
-
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
         URLRouter({
             # Ruta para WebSocket
-            re_path(r'ws/chat/', MyConsumer.as_asgi()),  # Esta es la forma correcta
+            re_path(r'ws/tablero/', CrudNotifier.as_asgi()),  # Esta es la forma correcta
+            re_path(r'ws/ordenes/', OrdenNotifier.as_asgi()),  # Esta es la forma correcta
         })
     ),
 })
