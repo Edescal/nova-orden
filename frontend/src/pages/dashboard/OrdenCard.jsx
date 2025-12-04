@@ -2,6 +2,7 @@ import { useEffectEvent, useState, useEffect, useRef } from 'react'
 import noimgfound from '../../assets/noimgfound.jpg'
 import { useModal } from '../../context/ModalContext'
 import AxiosInstance from '../../context/AuthContext'
+import { Paper } from '@mui/material'
 
 export default function OrdenCard({ orden, onUpdate = null, nextParam = null, prevParam = null }) {
     const cardRef = useRef()
@@ -26,10 +27,10 @@ export default function OrdenCard({ orden, onUpdate = null, nextParam = null, pr
         if (response) {
             if (cardRef.current) {
                 cardRef.current.classList.add('card-close')
-                setTimeout(() => {
-                    setData(response.data)
-                    onUpdate?.()
-                }, 500)
+                // setTimeout(() => {
+                //     setData(response.data)
+                //     onUpdate?.()
+                // }, 500)
             }
         }
     })
@@ -65,7 +66,7 @@ export default function OrdenCard({ orden, onUpdate = null, nextParam = null, pr
     };
 
     return (
-        <div ref={cardRef} className={`card-open card mb-3 shadow border-start-0 border-top-1 border-bottom-0 border-end-0 border-5 border-${getStatusColor(data.estado)}`}>
+        <Paper elevation={6} ref={cardRef} className={`card-open card mb-3 border-start-0 border-top-1 border-bottom-0 border-end-0 border-5 border-${getStatusColor(data.estado)}`}>
             <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                     <div>
@@ -122,6 +123,6 @@ export default function OrdenCard({ orden, onUpdate = null, nextParam = null, pr
                         : null}
                 </div>
             </div>
-        </div >
+        </Paper>
     );
 }

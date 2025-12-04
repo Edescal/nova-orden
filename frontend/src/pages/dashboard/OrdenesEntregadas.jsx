@@ -17,9 +17,8 @@ export default function OrdenesEntregadas() {
         const response = await AxiosInstance.get('/api/ordenes')
         if (response) {
             console.log(response.data)
-            console.log(response.data.results)
-            console.log(response.data.results.filter(x => x.estado === 3))
-            setOrdenes(response.data.results.filter(x => x.estado === 3) ?? [])
+            console.log(response.data.filter(x => x.estado === 3))
+            setOrdenes(response.data.filter(x => x.estado === 3) ?? [])
 
         }
     }

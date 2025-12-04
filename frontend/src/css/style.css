@@ -250,13 +250,13 @@ dialog.closing {
 @keyframes cardClose {
     from {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1);
         margin-bottom: 1rem;
     }
 
     to {
         opacity: 0;
-        transform: translateY(-100px);
+        transform: scale(0);
         margin-bottom: 0;
         padding-top: 0;
         padding-bottom: 0;
@@ -269,6 +269,6 @@ dialog.closing {
 }
 
 .card-close {
-    animation: cardClose 0.4s ease-in forwards;
+    animation: cardClose 0.3s ease-in forwards;
     overflow: hidden;
 }

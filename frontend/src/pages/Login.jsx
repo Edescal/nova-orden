@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Container, Paper, TextField, Button, Typography, Box, } from '@mui/material';
 import { Login as LoginIcon } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
     const auth = useAuth();
@@ -161,6 +162,10 @@ export default function Login() {
                             Iniciar Sesión
                         </Button>
                     </Box>
+
+                    <div className='text-center mb-5'>
+                        <Link to={'/#'}> Regresar al inicio</Link>
+                    </div>
                 </Paper>
             </Box>
         </Container>

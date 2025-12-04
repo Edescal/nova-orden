@@ -18,7 +18,7 @@ export default function Papelera() {
     const fetchOrdenes = async () => {
         const response = await AxiosInstance.get('/api/ordenes/')
         if (response) {
-            setCanceladas(response.data.results.filter(orden => orden.estado === 4))
+            setCanceladas(response.data.filter(orden => orden.estado === 4))
         }
     }
 

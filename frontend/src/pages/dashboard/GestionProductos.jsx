@@ -12,36 +12,10 @@ import FormNegocio from '../../components/formularios/FormNegocio'
 import noimgfound from '../../assets/noimgfound.jpg'
 import { Link } from 'react-router-dom'
 import ProductoChart from '../../components/charts/ProductoChart'
+import UltimasOrdenes from '../../components/charts/UltimasOrdenes'
 
 
 export default function GestionProductos() {
-	useEffect(() => {
-		const socket = new WebSocket("ws://localhost:8000/ws/chat/");
-
-		socket.onopen = () => {
-			console.log('Conexión WebSocket establecida');
-		};
-
-		socket.onmessage = (event) => {
-			const data = JSON.parse(event.data);
-			console.log("Mensaje recibido:", data);
-			if (data.event) {
-				alert(data.event); 
-			}
-		};
-
-		socket.onerror = (error) => {
-			console.error('Error en WebSocket:', error);
-		};
-
-		socket.onclose = () => {
-			console.log('Conexión WebSocket cerrada');
-		};
-
-		return () => {
-			socket.close();  // Cerrar la conexión cuando el componente se desmonte
-		};
-	}, []);
 
 	const auth = useAuth()
 	const formRef = useRef()
@@ -267,7 +241,7 @@ export default function GestionProductos() {
 
 
 				<Grid container spacing={3} sx={{ marginBottom: 3 }} alignItems={'stretch'}>
-					<Grid size={{ xs: 12, md: 4 }} flex={1} >
+					<Grid size={{ xs: 12, sm: 12, md: 6, lg:4 }} flex={1} >
 						<Paper elevation={5} sx={{ padding: 3, borderRadius: 5, marginBottom: 1, height: '100%' }}>
 							<Box sx={{
 								display: 'flex',
@@ -357,7 +331,7 @@ export default function GestionProductos() {
 						</Paper>
 					</Grid>
 
-					<Grid size={{ xs: 12, md: 4 }} flex={1}>
+					<Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} flex={1}>
 						<Paper elevation={5} sx={{ padding: 3, paddingBottom: 1, borderRadius: 5, marginBottom: 1, height: '100%' }}>
 							<Typography variant='h4' sx={{
 								flex: 2,
@@ -370,18 +344,18 @@ export default function GestionProductos() {
 						</Paper>
 					</Grid>
 
-					<Grid size={{ xs: 12, md: 4 }} flex={1}>
+					<Grid size={{ xs: 12, sm: 12, md: 4 }} flex={1}>
 						<Paper elevation={5} sx={{ padding: 3, paddingBottom: 1, borderRadius: 5, marginBottom: 1, height: '100%' }}>
 							<Typography variant='h4' sx={{
 								flex: 2,
 								flexFlow: 'row wrap',
 								marginBottom: 2,
 							}}>
-								Número de órdenes actuales
+								Últimas órdenes
 							</Typography>
-							<Typography variant='body1'>
-								3434
-							</Typography>
+							<div className='overflow-scroll' style={{ maxHeight: '150px' }}>
+							<UltimasOrdenes />
+							</div>
 						</Paper>
 					</Grid>
 				</Grid>

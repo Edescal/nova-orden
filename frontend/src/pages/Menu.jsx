@@ -9,6 +9,7 @@ import Footer from '../components/Footer'
 import DrawerCarrito from '../components/DrawerCarrito'
 import AxiosInstance from '../context/AuthContext'
 import SelectProducto from '../components/SelectProducto'
+import FooterDefault from '../components/footer/FooterDefault'
 
 export default function Menu() {
     const { slug } = useParams()
@@ -150,6 +151,8 @@ export default function Menu() {
                     </div>
                 </div>
             </main>
+            <FooterDefault />
+
             <Footer onCartClick={() => setOpen(!open)} />
             <DrawerCarrito open={open} setOpen={setOpen}></DrawerCarrito>
         </>

@@ -8,6 +8,7 @@ import ProductoCarrito from "../components/ProductoCarrito"
 export default function Success() {
     const location = useLocation()
     const [orden, setOrden] = useState(null)
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (location?.state?.orden) {
@@ -96,7 +97,7 @@ export default function Success() {
                         <div className="text-center mt-4">
                             <button
                                 className="btn btn-outline-dark fw-bold rounded-pill px-4"
-                                onClick={() => window.history.back()}
+                                onClick={() => navigate('/')}
                             >
                                 Volver al inicio
                             </button>

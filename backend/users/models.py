@@ -396,14 +396,8 @@ class ProductoWrapper(models.Model):
         if self.cantidad < 1:
             raise ValidationError('No se pueden ordenar 0 productos')
         if self.producto.pk:
-            if self.opciones.count() == 0:
-                raise ValidationError('Hace falta información de las opciones de esta orden')
             if self.producto.grupos.count() != self.opciones.count():
                 raise ValidationError('No concuerda el número de opciones elegidas para esta orden')
-            #TODO: validar que cada opción pertenezca a un grupo distinto
-
-        
-            
         return super().clean()
 
     def __str__(self):

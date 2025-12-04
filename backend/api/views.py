@@ -17,6 +17,8 @@ from users import models
 from . import serializers
 import json, uuid
 
+from django.db.models import Sum, Q
+
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -197,7 +199,6 @@ class ProductoViewSet(viewsets.ModelViewSet):
 
         return Response('No se pudo actualizar la visibilidad el producto', status=HTTP_406_NOT_ACCEPTABLE)
 
-    # @database_sync_to_async
     def send_event_to_websocket(self, message):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)('grupo',{
@@ -210,24 +211,11 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CategoriaSerializer
     permission_classes = [permissions.AllowAny] 
 
-    # def update(self, request):
-    #     with transaction.atomic():
-    #         try:
-    #             print(request.data)
-
-    #             return JsonResponse(
-    #                 data=request.data,
-    #                 status= HTTP_201_CREATED
-    #             )
-    #         except Exception as e:
-    #             transaction.set_rollback(True)
-    #             print(f'[API Error]: {e}')
-    #     return Response('No se creó la categoría', status=HTTP_400_BAD_REQUEST)
-
 class OrdenViewSet(viewsets.ModelViewSet):
     queryset = models.Orden.objects.all().order_by("id")
     serializer_class = serializers.OrdenSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None  # Deshabilitar paginación en esta vista
 
     def create(self, request: Request, *args, **kwargs):
         with transaction.atomic():
@@ -271,6 +259,8 @@ class OrdenViewSet(viewsets.ModelViewSet):
                 print(orden_model)
                 orden_model.clean()
 
+                self.send_event_to_websocket('¡Se ha creado una nueva orden!')
+
                 return Response(
                     data=self.get_serializer(orden_model).data, 
                     status= HTTP_201_CREATED
@@ -278,10 +268,17 @@ class OrdenViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 print(f'[API Error]: {e}')
                 return Response(status=HTTP_406_NOT_ACCEPTABLE, data={'error': f'{e}'})
-            # finally:
-            #     transaction.set_rollback(True)
+
 
         return Response(status=HTTP_400_BAD_REQUEST)
+    
+    def send_event_to_websocket(self, message):
+        print('Enviando mensaje por websocket [Orden]...')
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)('ordenes',{
+            'type': 'send_event',
+            'message': message 
+        })
 
 class ProductoWrapperViewSet(viewsets.ModelViewSet):
     queryset = models.ProductoWrapper.objects.all().order_by("id")
@@ -334,6 +331,38 @@ def create_product_wrapper(data):
         option = models.Option.objects.get(id = opt_id.get('id', None))
         wrapper.opciones.add(option)
     return wrapper
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([JWTAuthentication])
+def get_top_3_productos(request):
+    top_3_productos = (
+        models.Producto.objects
+        .annotate(total_vendido=Sum('productowrapper__cantidad'))  # Sumar las cantidades de cada producto en ProductoWrapper
+        .filter(total_vendido__isnull=False)  
+        .filter(~Q(productowrapper__orden__estado=4))  # Asegurarse de que las órdenes no estén en estado 4 (Cancelada)
+            .filter(~Q(productowrapper__orden__nombre_cliente=''))  # Excluir órdenes con nombre_cliente vacío
+        .order_by('-total_vendido')[:3] 
+    )
+    packets = []
+    for mierda in top_3_productos:
+        data = serializers.ProductoSerializer(mierda, context={'request': request}).data
+        data['total_vendido'] = mierda.total_vendido
+        packets.append(data)
+        print(f'Producto: {mierda.nombre}, Total Vendido: {mierda.total_vendido}')
+    return JsonResponse({
+        'results': packets,
+    }, status=HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def get_last_orders(request):
+    ordenes_recientes = models.Orden.objects.all().filter(~Q(nombre_cliente='')).order_by('-fecha')[:3]
+    data_or = serializers.OrdenSerializer(ordenes_recientes, many=True, context={'request': request}).data
+    return JsonResponse(data_or, safe=False, status=HTTP_200_OK)
 
 
 @api_view(['GET'])

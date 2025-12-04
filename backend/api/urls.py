@@ -22,6 +22,8 @@ urlpatterns = [
     path('login/', views.login_view, name='api-login'),    
     path('register/', views.register_view, name='api-register'),
 
+    path('utils/top-productos/', views.get_top_3_productos, name='api-top-3-productos'),
+    path('utils/last-ordenes/', views.get_last_orders, name='api-top-3-productos'),
 
     path('token/', TokenObtainPairView.as_view(), name='token'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
