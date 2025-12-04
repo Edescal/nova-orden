@@ -103,10 +103,11 @@ export const CartProvider = ({ children }) => {
         let total = 0
         cart.forEach(detalle => {
             try {
-                total += Number(detalle.producto.precio) * detalle.cantidad
+                total += Number(detalle.producto.precio) 
                 detalle.opciones.forEach(opcion => {
                     total += Number(opcion.precio)
                 })
+                total *= detalle.cantidad
             } catch (error) {
                 console.log(`Error al obtener precios del carrito: ${error}`)
                 return 0
