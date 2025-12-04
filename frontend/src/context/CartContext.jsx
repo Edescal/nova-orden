@@ -103,7 +103,7 @@ export const CartProvider = ({ children }) => {
         let total = 0
         cart.forEach(detalle => {
             try {
-                total += Number(detalle.producto.precio)
+                total += Number(detalle.producto.precio) * detalle.cantidad
                 detalle.opciones.forEach(opcion => {
                     total += Number(opcion.precio)
                 })
