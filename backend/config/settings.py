@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     DEBUG=(bool, False),
-    SECRET_KEY=(str, ''),
+    SECRET_KEY=(str, 'secret'),
     TIME_ZONE=(str, 'America/Merida'),
     EMAIL_BACKEND = (str, "django.core.mail.backends.smtp.EmailBackend"),
     EMAIL_HOST = (str, "smtp.gmail.com"),
