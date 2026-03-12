@@ -5,8 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  build-and-deploy:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -47,7 +46,7 @@ jobs:
             cd frontend
             pnpm install
             pnpm run build
-            
+
 
             
             
