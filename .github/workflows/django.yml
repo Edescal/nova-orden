@@ -42,7 +42,7 @@ jobs:
             python3 manage.py migrate
             systemctl restart gunicorn
 
-            export PATH=$PATH:/home/watoc/.local/share/pnpm/pnpm
+            export PATH=$PATH:/home/watoc/.local/share/pnpm
             which pnpm
             cd ../frontend
             pnpm install
