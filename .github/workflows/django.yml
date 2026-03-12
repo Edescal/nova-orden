@@ -3,8 +3,6 @@ name: Try Deploy on Push
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -16,6 +14,19 @@ jobs:
         python-version: [3.12]
 
     steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check secret
+        run: |
+          if [ -z "$VPS_HOST" ]; then
+            echo "HOST VACÍO"
+            exit 1
+          else
+            echo "HOST OK"
+          fi
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+      
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1
         with:
