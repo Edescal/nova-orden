@@ -1,4 +1,4 @@
-name: Deploy 
+name: Try Deploy on Push 
 
 on:
   push:
@@ -16,19 +16,27 @@ jobs:
         python-version: [3.12]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Configurar Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-        
-    - name: Instalar dependencias
-      working-directory: backend
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -r requirements.txt
-    - name: Run Migrations
-      working-directory: backend
-      run: |
-        python3 manage.py makemigrations
-        python3 manage.py migrate
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/github
+            git pull origin main
+            cd backend
+            source venv/bin/activate
+            pip install -r requirements.txt
+            python3 manage.py makemigrations
+            python3 manage.py migrate
+            systemctl restart gunicorn
+
+            cd ..
+            cd frontend
+            pnpm install
+            pnpm run build
+            
+
+            
+            
