@@ -42,8 +42,9 @@ jobs:
             python3 manage.py migrate
             systemctl restart gunicorn
 
-            cd ..
-            cd frontend
+            export PATH=$PATH:/usr/local/bin
+            which pnpm
+            cd ../frontend
             pnpm install
             pnpm run build
 
